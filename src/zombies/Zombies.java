@@ -6,8 +6,6 @@
 
 package zombies;
 
-import environment.ApplicationStarter;
-
 /**
  *
  * @author Leo
@@ -18,11 +16,7 @@ public class Zombies {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        start();
-    }
-    
-    private static void start() {
-        ApplicationStarter.run(("Void", new GameEnvironment());
+        // TODO code application logic here
     }
     
 }
