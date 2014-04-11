@@ -12,20 +12,28 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import path.TrigonometryCalculator;
 
 /**
  *
  * @author Leo
  */
-class GameEnvironment extends Environment {
+class GameEnvironment extends Environment implements MouseMotionListener {
     private Character hero;
+    private Crosshair crosshair;
+    
     
     @Override
     public void initializeEnvironment() {
         hero = new Character(new Point(100, 100), new Velocity(0, 0));
         this.getActors().add(hero);
         
+        crosshair = new Crosshair(new Point(100, 100), new Velocity(0, 0));
+        this.getActors().add(crosshair);
+        
         this.getActors().add(new Zombie(new Point(10, 10), new Velocity(0, 0)));
+        addMouseMotionListener(this);
     }
 
     @Override
@@ -59,6 +67,26 @@ class GameEnvironment extends Environment {
     public void paintEnvironment(Graphics graphics) {
 
     }
+
+//<editor-fold defaultstate="collapsed" desc="MouseMotionListener">
+    @Override
+    public void mouseDragged(MouseEvent e) {
+    }
+    
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        if (crosshair != null) {
+         crosshair.setPosition(new Point (e.getPoint().x - 15, e.getPoint().y - 15));
+         
+         hero.setAngle((int) (TrigonometryCalculator.calculateAngle(hero.getCenterOfMass(), crosshair.getCenterOfMass()) * 360) );
+         
+         System.out.println("hero angle = " + TrigonometryCalculator.calculateAngle(hero.getCenterOfMass(), crosshair.getCenterOfMass()));
+         System.out.println("hero angle = " + hero.getAngle());
+         
+         
+        }
+    }
+//</editor-fold>
 
 
     
