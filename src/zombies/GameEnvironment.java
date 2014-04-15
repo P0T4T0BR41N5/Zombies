@@ -22,10 +22,14 @@ import path.TrigonometryCalculator;
 class GameEnvironment extends Environment implements MouseMotionListener {
     private Character hero;
     private Crosshair crosshair;
+    int characterSpeed;
     
     
     @Override
     public void initializeEnvironment() {
+        
+        characterSpeed = 3;
+        
         hero = new Character(new Point(100, 100), new Velocity(0, 0));
         this.getActors().add(hero);
         
@@ -44,16 +48,22 @@ class GameEnvironment extends Environment implements MouseMotionListener {
     @Override
     public void keyPressedHandler(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_A) {
-            hero.setVelocity(new Velocity(-1, 0));
+            hero.setVelocity(new Velocity(-characterSpeed, 0));
         } else if (e.getKeyCode() == KeyEvent.VK_D) {
-            hero.setVelocity(new Velocity(1, 0));
+            hero.setVelocity(new Velocity(characterSpeed, 0));
+        } else if (e.getKeyCode() == KeyEvent.VK_W) {
+            hero.setVelocity(new Velocity(0, -characterSpeed));
+        } else if (e.getKeyCode() == KeyEvent.VK_S) {
+            hero.setVelocity(new Velocity(0, characterSpeed));
         }
     }
 
     @Override
     public void keyReleasedHandler(KeyEvent e) {
         if ((e.getKeyCode() == KeyEvent.VK_A) ||
-            (e.getKeyCode() == KeyEvent.VK_D)) {
+            (e.getKeyCode() == KeyEvent.VK_D) ||
+            (e.getKeyCode() == KeyEvent.VK_W) ||
+            (e.getKeyCode() == KeyEvent.VK_S)) {
          hero.stop();
         }
     }
