@@ -12,6 +12,7 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import path.TrigonometryCalculator;
 
 /**
@@ -21,7 +22,8 @@ import path.TrigonometryCalculator;
 class GameEnvironment extends Environment implements MouseMotionListener {
 
     private Character hero;
-    private Zombie zombie;
+//    private Zombie zombie;
+    private ArrayList<Zombie> zombies;
     private Crosshair crosshair;
     private int characterSpeed;
     private int zombieSpeed;
@@ -38,23 +40,29 @@ class GameEnvironment extends Environment implements MouseMotionListener {
         setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
         this.getActors().add(getCrosshair());
 
-        this.getActors().add(new Zombie(new Point(10, 10), new Velocity(0, 0)));
+        this.getActors().add(new Zombie(new Point(randomPoint()), new Velocity(0, 0)));
         addMouseMotionListener(this);
 
-        setZombie(new Zombie(new Point(this.randomPoint()), new Velocity(0, 0)));
-        this.getActors().add(getZombie());
-
-
+        zombies = new ArrayList<Zombie>();
+        for (int i = 0; i < 5; i++) {
+            Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
+            this.getActors().add(myZombie);
+            this.getZombies().add(myZombie);
+        }
     }
 
     private Point randomPoint() {
-        return new Point((int) (Math.random() * 100), (int) (Math.random() * 100));
+        return new Point((int) (Math.random() * 500), (int) (Math.random() * 500));
 
     }
 
     @Override
     public void timerTaskHandler() {
-        zombie.setVelocity(TrigonometryCalculator.calculateVelocity(zombie.getPosition(), hero.getPosition(), 2));
+        for (Zombie aZombie : getZombies()){
+            if (Math.random() > .9) {
+                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));                
+            }
+        }
     }
 
     @Override
@@ -124,19 +132,19 @@ class GameEnvironment extends Environment implements MouseMotionListener {
         this.hero = hero;
     }
 
-    /**
-     * @return the zombie
-     */
-    public Zombie getZombie() {
-        return zombie;
-    }
-
-    /**
-     * @param zombie the zombie to set
-     */
-    public void setZombie(Zombie zombie) {
-        this.zombie = zombie;
-    }
+//    /**
+//     * @return the zombie
+//     */
+//    public Zombie getZombie() {
+//        return zombie;
+//    }
+//
+//    /**
+//     * @param zombie the zombie to set
+//     */
+//    public void setZombie(Zombie zombie) {
+//        this.zombie = zombie;
+//    }
 
     /**
      * @return the crosshair
@@ -178,6 +186,20 @@ class GameEnvironment extends Environment implements MouseMotionListener {
      */
     public void setZombieSpeed(int zombieSpeed) {
         this.zombieSpeed = zombieSpeed;
+    }
+
+    /**
+     * @return the zombies
+     */
+    public ArrayList<Zombie> getZombies() {
+        return zombies;
+    }
+
+    /**
+     * @param zombies the zombies to set
+     */
+    public void setZombies(ArrayList<Zombie> zombies) {
+        this.zombies = zombies;
     }
 
 }
