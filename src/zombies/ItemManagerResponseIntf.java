@@ -10,7 +10,6 @@ package zombies;
  *
  * @author Leo
  */
-public enum GameState {
-PAUSED, RUNNING, STORE_MENU, MAIN_MENU, STARTING, RUNNING_TO_PAUSED, PAUSED_TO_RUNNING,RUNNING_TO_MENU, MENU_TO_RUNNING
-    
+public interface ItemManagerResponseIntf {
+    public void handleItemManagerResponse (ItemList itemList);
 }
