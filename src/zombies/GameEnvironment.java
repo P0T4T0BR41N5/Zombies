@@ -337,8 +337,8 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     private void showItemManager() {
         JFrame frame = new JFrame("Item Manager");
         ItemList myItems = new ItemList();
-        myItems.getItems().add(new Item("Axe", "Really not sharp!"));
-        myItems.getItems().add(new Item("Computer", "I don't know why there is a computer."));
+        myItems.getItems().add(new Item("Knife", "Sharp"));
+        myItems.getItems().add(new Item("Pistol", "works well"));
         myItems.getItems().add(new Item("Banana", "Looks delicious."));
         myItems.getItems().add(new Item("Pencil", "HB pencil, good for scantron."));
 
