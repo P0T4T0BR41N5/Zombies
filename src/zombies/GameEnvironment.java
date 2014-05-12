@@ -63,6 +63,8 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                     aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
                 }
             }
+            
+            
         } else if (gameState == GameState.STARTING) {
 
             setCharacterSpeed(3);
@@ -337,10 +339,21 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     private void showItemManager() {
         JFrame frame = new JFrame("Item Manager");
         ItemList myItems = new ItemList();
-        myItems.getItems().add(new Item("Knife", "Sharp"));
-        myItems.getItems().add(new Item("Pistol", "works well"));
-        myItems.getItems().add(new Item("Banana", "Looks delicious."));
-        myItems.getItems().add(new Item("Pencil", "HB pencil, good for scantron."));
+        myItems.getItems().add(new Item("Item 1", "1"));
+        myItems.getItems().add(new Item("Item 2", "2"));
+        myItems.getItems().add(new Item("Item 3", "3"));
+        myItems.getItems().add(new Item("Item 4", "4"));
+        myItems.getItems().add(new Item("Item 5", "5"));
+        myItems.getItems().add(new Item("Item 6", "6"));
+        myItems.getItems().add(new Item("Item 7", "7"));
+        myItems.getItems().add(new Item("Item 8", "8"));
+        myItems.getItems().add(new Item("Item 9", "9"));
+        myItems.getItems().add(new Item("Item 10", "10"));     
+        myItems.getItems().add(new Item("Item 11", "11"));
+        myItems.getItems().add(new Item("Item 12", "12"));
+        myItems.getItems().add(new Item("Item 13", "13"));
+        myItems.getItems().add(new Item("Item 14", "14"));
+        myItems.getItems().add(new Item("Item 15", "15"));
 
         ItemManager im = new ItemManager("Hello all the world!", myItems, (ItemManagerResponseIntf) this);
         frame.add(im);
