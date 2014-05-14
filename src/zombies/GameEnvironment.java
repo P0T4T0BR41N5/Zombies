@@ -17,6 +17,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import javax.swing.JFrame;
+import map.Map;
+import map.MapVisualizerDefault;
+import map.MapVisualizerIntf;
 import path.TrigonometryCalculator;
 
 /**
@@ -41,18 +44,38 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     private int characterSpeed;
     private int zombieSpeed;
     private GameState gameState = GameState.MAIN_MENU;
+    private Map currentMap, zombieMap;
+    private MapVisualizerDefault mapVisualizer;
 
     @Override
     public void initializeEnvironment() {
 
+        characterSpeed = 3;
+
+        hero = new Character(new Point(100, 100), new Velocity(0, 0));
+        this.getActors().add(hero);
+
+        crosshair = new Crosshair(new Point(100, 100), new Velocity(0, 0));
+        this.getActors().add(crosshair);
+
+        this.getActors().add(new Zombie(new Point(10, 10), new Velocity(0, 0)));
+        addMouseMotionListener(this);
+
+        mapVisualizer = new MapVisualizerDefault(true, false);
+
+        zombieMap = MapBin.getZombieMap();
+        configureMap(zombieMap);
+        currentMap = zombieMap;
+    }
+
+    private void configureMap(Map map) {
+        map.setMapVisualizer(mapVisualizer);
     }
 
     @Override
     public void timerTaskHandler() {
         if (gameState == GameState.MAIN_MENU) {
-
         } else if (gameState == GameState.PAUSED) {
-
         } else if (gameState == GameState.RUNNING) {
             for (Zombie aZombie : getZombies()) {
                 if (Math.random() >= .95) {
@@ -84,7 +107,6 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             gameState = GameState.RUNNING;
 
         } else if (gameState == GameState.STORE_MENU) {
-
         } else if (gameState == GameState.RUNNING_TO_PAUSED) {
             for (Zombie zombie : zombies) {
                 zombie.stop();
@@ -120,13 +142,18 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 }
             }
         }
+        
+        if (hero != null) {
+            if (Math.random() > .98) {
+                hero.addToHealth(2);
+            }
+        }
 
-//        hero.setAngle((int) TrigonometryCalculator.calculateAngle(hero.getCenterOfMass(), crosshair.getCenterOfMass()));
-//        intersect();
     }
 
     @Override
     public void keyPressedHandler(KeyEvent e) {
+
         if (gameState == GameState.MAIN_MENU) {
             if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                 gameState = GameState.STARTING;
@@ -151,25 +178,39 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 showItemManager();
             } else if (e.getKeyCode() == KeyEvent.VK_2) {
                 gameState = GameState.RUNNING_TO_PAUSED;
+            } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                Point newPosition = (Point) currentMap.getPosition().clone();
+                newPosition.y -= 10;
+                currentMap.setPosition(newPosition);
+            } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                Point newPosition = (Point) currentMap.getPosition().clone();
+                newPosition.y += 10;
+                currentMap.setPosition(newPosition);
+            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                Point newPosition = (Point) currentMap.getPosition().clone();
+                newPosition.x -= 10;
+                currentMap.setPosition(newPosition);
+            } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                Point newPosition = (Point) currentMap.getPosition().clone();
+                newPosition.x += 10;
+                currentMap.setPosition(newPosition);
+            } else if (e.getKeyCode() == KeyEvent.VK_E) {
+                if (mapVisualizer != null) {
+                    mapVisualizer.toggleShowAllObjects();
+                }
             }
-
         } else if (gameState == GameState.STARTING) {
-
         } else if (gameState == GameState.STORE_MENU) {
-
             if (e.getKeyCode() == KeyEvent.VK_1) {
                 gameState = GameState.MENU_TO_RUNNING;
             }
         }
-
     }
 
     @Override
     public void keyReleasedHandler(KeyEvent e) {
         if (gameState == GameState.MAIN_MENU) {
-
         } else if (gameState == GameState.PAUSED) {
-
         } else if (gameState == GameState.RUNNING) {
             if ((e.getKeyCode() == KeyEvent.VK_A)
                     || (e.getKeyCode() == KeyEvent.VK_D)
@@ -178,20 +219,19 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 getHero().stop();
             }
         } else if (gameState == GameState.STARTING) {
-
         } else if (gameState == GameState.STORE_MENU) {
-
         }
 
     }
 
     @Override
     public void environmentMouseClicked(MouseEvent e) {
-
     }
 
     @Override
     public void paintEnvironment(Graphics graphics) {
+        
+        
         if (gameState == GameState.MAIN_MENU) {
             graphics.setColor(new Color(179, 51, 0, 200));
             graphics.fillRect(50, 50, 750, 450);
@@ -218,9 +258,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             graphics.drawString("Press 2 To Continue", 200, 300);
 
         } else if (gameState == GameState.RUNNING) {
-
         } else if (gameState == GameState.STARTING) {
-
         } else if (gameState == GameState.STORE_MENU) {
             graphics.setColor(new Color(0, 0, 0, 150));
             graphics.fillRect(50, 50, 750, 450);
@@ -233,6 +271,9 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
         }
 
+        if (currentMap != null) {
+            currentMap.drawMap(graphics);
+        }
     }
 
 //<editor-fold defaultstate="collapsed" desc="MouseMotionListener">
