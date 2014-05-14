@@ -13,6 +13,9 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import map.Map;
+import map.MapVisualizerDefault;
+import map.MapVisualizerIntf;
 import path.TrigonometryCalculator;
 
 /**
@@ -22,7 +25,9 @@ import path.TrigonometryCalculator;
 class GameEnvironment extends Environment implements MouseMotionListener {
     private Character hero;
     private Crosshair crosshair;
-    int characterSpeed;
+    private int characterSpeed;
+    private Map currentMap, zombieMap;
+    private MapVisualizerDefault mapVisualizer;
     
     
     @Override
@@ -38,8 +43,20 @@ class GameEnvironment extends Environment implements MouseMotionListener {
         
         this.getActors().add(new Zombie(new Point(10, 10), new Velocity(0, 0)));
         addMouseMotionListener(this);
+        
+        mapVisualizer = new MapVisualizerDefault(true, false);
+        
+        zombieMap = MapBin.getZombieMap();
+        configureMap(zombieMap);
+        currentMap = zombieMap;
+        
     }
 
+    private void configureMap(Map map){
+        map.setMapVisualizer(mapVisualizer);
+    }
+    
+    
     @Override
     public void timerTaskHandler() {
 
@@ -53,9 +70,27 @@ class GameEnvironment extends Environment implements MouseMotionListener {
             hero.setVelocity(new Velocity(characterSpeed, 0));
         } else if (e.getKeyCode() == KeyEvent.VK_W) {
             hero.setVelocity(new Velocity(0, -characterSpeed));
-        } else if (e.getKeyCode() == KeyEvent.VK_S) {
-            hero.setVelocity(new Velocity(0, characterSpeed));
-        }
+        } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+            Point newPosition = (Point) currentMap.getPosition().clone();
+            newPosition.y -= 10;
+            currentMap.setPosition(newPosition);
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            Point newPosition = (Point) currentMap.getPosition().clone();
+            newPosition.y += 10;
+            currentMap.setPosition(newPosition);
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            Point newPosition = (Point) currentMap.getPosition().clone();
+            newPosition.x -= 10;
+            currentMap.setPosition(newPosition);
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+           Point newPosition = (Point) currentMap.getPosition().clone();
+            newPosition.x += 10;
+            currentMap.setPosition(newPosition);
+        } else if (e.getKeyCode() == KeyEvent.VK_E) {
+            if (mapVisualizer != null) {
+                mapVisualizer.toggleShowAllObjects();
+            }
+        } 
     }
 
     @Override
@@ -75,7 +110,9 @@ class GameEnvironment extends Environment implements MouseMotionListener {
 
     @Override
     public void paintEnvironment(Graphics graphics) {
-
+        if (currentMap != null) {
+           currentMap.drawMap(graphics);
+        }
     }
 
 //<editor-fold defaultstate="collapsed" desc="MouseMotionListener">
