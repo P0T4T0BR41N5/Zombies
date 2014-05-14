@@ -61,8 +61,11 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             for (Zombie aZombie : getZombies()) {
                 if (Math.random() >= .95) {
                     aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                    aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition())* 57));
                 }
             }
+            
+            
         } else if (gameState == GameState.STARTING) {
 
             setCharacterSpeed(3);
@@ -74,11 +77,11 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
             this.getActors().add(getCrosshair());
 
-            this.getActors().add(new Zombie(new Point(randomPoint()), new Velocity(0, 0)));
+//            this.getActors().add(new Zombie(new Point(randomPoint()), new Velocity(0, 0)));
             addMouseMotionListener(this);
 
             zombies = new ArrayList<>();
-            for (int i = 0; i <= 5; i++) {
+            for (int i = 0; i <= 0; i++) {
                 Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
                 this.getActors().add(myZombie);
                 this.getZombies().add(myZombie);
@@ -237,10 +240,8 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         if (getCrosshair() != null) {
             getCrosshair().setPosition(new Point(e.getPoint().x - 15, e.getPoint().y - 15));
 
-            getHero().setAngle((int) (TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()) * 360));
+            getHero().setAngle((int) (TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()) * 57));
 
-            System.out.println("hero angle = " + TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()));
-            System.out.println("hero angle = " + getHero().getAngle());
 
         }
     }
@@ -337,10 +338,21 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     private void showItemManager() {
         JFrame frame = new JFrame("Item Manager");
         ItemList myItems = new ItemList();
-        myItems.getItems().add(new Item("Knife", "Sharp"));
-        myItems.getItems().add(new Item("Pistol", "works well"));
-        myItems.getItems().add(new Item("Banana", "Looks delicious."));
-        myItems.getItems().add(new Item("Pencil", "HB pencil, good for scantron."));
+        myItems.getItems().add(new Item("Item 1", "1"));
+        myItems.getItems().add(new Item("Item 2", "2"));
+        myItems.getItems().add(new Item("Item 3", "3"));
+        myItems.getItems().add(new Item("Item 4", "4"));
+        myItems.getItems().add(new Item("Item 5", "5"));
+        myItems.getItems().add(new Item("Item 6", "6"));
+        myItems.getItems().add(new Item("Item 7", "7"));
+        myItems.getItems().add(new Item("Item 8", "8"));
+        myItems.getItems().add(new Item("Item 9", "9"));
+        myItems.getItems().add(new Item("Item 10", "10"));     
+        myItems.getItems().add(new Item("Item 11", "11"));
+        myItems.getItems().add(new Item("Item 12", "12"));
+        myItems.getItems().add(new Item("Item 13", "13"));
+        myItems.getItems().add(new Item("Item 14", "14"));
+        myItems.getItems().add(new Item("Item 15", "15"));
 
         ItemManager im = new ItemManager("Hello all the world!", myItems, (ItemManagerResponseIntf) this);
         frame.add(im);
