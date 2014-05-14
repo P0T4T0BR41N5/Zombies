@@ -5,20 +5,16 @@
  */
 package zombies;
 
-import environment.Actor;
 import environment.Environment;
 import environment.Velocity;
-import image.ResourceTools;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import path.TrigonometryCalculator;
@@ -61,11 +57,10 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             for (Zombie aZombie : getZombies()) {
                 if (Math.random() >= .95) {
                     aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-                    aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition())* 57));
+                    aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
                 }
             }
-            
-            
+
         } else if (gameState == GameState.STARTING) {
 
             setCharacterSpeed(3);
@@ -114,6 +109,16 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
             }
             gameState = gameState.RUNNING;
+        }
+
+        if ((hero != null) && (zombies != null)) {
+            for (Zombie zombie : this.zombies) {
+                if (this.hero.intersects(zombie)) {
+                    if (Math.random() > .9) {
+                        hero.addToHealth(-1);
+                    }
+                }
+            }
         }
 
 //        hero.setAngle((int) TrigonometryCalculator.calculateAngle(hero.getCenterOfMass(), crosshair.getCenterOfMass()));
@@ -242,7 +247,6 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
             getHero().setAngle((int) (TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()) * 57));
 
-
         }
     }
 //</editor-fold>
@@ -347,7 +351,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         myItems.getItems().add(new Item("Item 7", "7"));
         myItems.getItems().add(new Item("Item 8", "8"));
         myItems.getItems().add(new Item("Item 9", "9"));
-        myItems.getItems().add(new Item("Item 10", "10"));     
+        myItems.getItems().add(new Item("Item 10", "10"));
         myItems.getItems().add(new Item("Item 11", "11"));
         myItems.getItems().add(new Item("Item 12", "12"));
         myItems.getItems().add(new Item("Item 13", "13"));
