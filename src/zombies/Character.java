@@ -54,6 +54,13 @@ public class Character extends Actor {
     /**
      * @param health the health to set
      */
+    public void addToHealth(int health) {
+        setHealth(getHealth() + health);
+    }
+
+    /**
+     * @param health the health to set
+     */
     public void setHealth(int health) {
         if (health < MIN_HEALTH) {
             this.health = MIN_HEALTH;
