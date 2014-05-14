@@ -61,6 +61,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             for (Zombie aZombie : getZombies()) {
                 if (Math.random() >= .95) {
                     aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                    aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition())* 57));
                 }
             }
             
@@ -76,11 +77,11 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
             this.getActors().add(getCrosshair());
 
-            this.getActors().add(new Zombie(new Point(randomPoint()), new Velocity(0, 0)));
+//            this.getActors().add(new Zombie(new Point(randomPoint()), new Velocity(0, 0)));
             addMouseMotionListener(this);
 
             zombies = new ArrayList<>();
-            for (int i = 0; i <= 5; i++) {
+            for (int i = 0; i <= 0; i++) {
                 Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
                 this.getActors().add(myZombie);
                 this.getZombies().add(myZombie);
@@ -239,10 +240,8 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         if (getCrosshair() != null) {
             getCrosshair().setPosition(new Point(e.getPoint().x - 15, e.getPoint().y - 15));
 
-            getHero().setAngle((int) (TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()) * 360));
+            getHero().setAngle((int) (TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()) * 57));
 
-            System.out.println("hero angle = " + TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()));
-            System.out.println("hero angle = " + getHero().getAngle());
 
         }
     }
