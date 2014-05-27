@@ -5,10 +5,11 @@
  */
 package zombies;
 
+import audio.AudioPlayer;
 import environment.Actor;
 import environment.Environment;
 import environment.Velocity;
-import image.ResourceTools;
+import images.ResourceTools;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -18,6 +19,7 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JFrame;
@@ -44,94 +46,43 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     private Crosshair crosshair;
     private int characterSpeed;
     private int zombieSpeed;
-    private GameState gameState = GameState.MAIN_MENU;
+    private GameState gameState;
+    private int zombieHit = 0;
+    private int zombieCount = 2;
 
     @Override
     public void initializeEnvironment() {
-
+        gameState = gameState.MAIN_MENU;
     }
 
     @Override
     public void timerTaskHandler() {
-        if (gameState == GameState.MAIN_MENU) {
-
-        } else if (gameState == GameState.PAUSED) {
-
-        } else if (gameState == GameState.RUNNING) {
-            for (Zombie aZombie : getZombies()) {
-                if (Math.random() >= .95) {
-                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-                    aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition())* 57));
-                }
-            }
-            
-            
-        } else if (gameState == GameState.STARTING) {
-
-            setCharacterSpeed(3);
-            setZombieSpeed(2);
-
-            setHero(new Character(new Point(100, 100), new Velocity(0, 0)));
-            this.getActors().add(getHero());
-
-            setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
-            this.getActors().add(getCrosshair());
-
-//            this.getActors().add(new Zombie(new Point(randomPoint()), new Velocity(0, 0)));
-            addMouseMotionListener(this);
-
-            zombies = new ArrayList<>();
-            for (int i = 0; i <= 0; i++) {
-                Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
-                this.getActors().add(myZombie);
-                this.getZombies().add(myZombie);
-            }
-            gameState = GameState.RUNNING;
-
-        } else if (gameState == GameState.STORE_MENU) {
-
-        } else if (gameState == GameState.RUNNING_TO_PAUSED) {
-            for (Zombie zombie : zombies) {
-                zombie.stop();
-            }
-            hero.stop();
-            gameState = GameState.PAUSED;
-
-        } else if (gameState == GameState.PAUSED_TO_RUNNING) {
-            for (Zombie aZombie : getZombies()) {
-                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-            }
-            gameState = gameState.RUNNING;
-
-        } else if (gameState == GameState.RUNNING_TO_MENU) {
-            for (Zombie zombie : zombies) {
-                zombie.stop();
-            }
-            hero.stop();
-            gameState = GameState.STORE_MENU;
-        } else if (gameState == GameState.MENU_TO_RUNNING) {
-            for (Zombie aZombie : getZombies()) {
-                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-            }
-            gameState = gameState.RUNNING;
+        
+        if (System.currentTimeMillis() - shootTime > 20) {
+            shootLine = null;
         }
 
-//        hero.setAngle((int) TrigonometryCalculator.calculateAngle(hero.getCenterOfMass(), crosshair.getCenterOfMass()));
-//        intersect();
+        if (getGameState() == GameState.RUNNING) {
+            for (Zombie aZombie : getZombies()) {
+                if ((Math.random() >= .95) && aZombie.isAlive()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                    aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
+                }
+            }
+        }
     }
 
     @Override
     public void keyPressedHandler(KeyEvent e) {
-        if (gameState == GameState.MAIN_MENU) {
+        if (getGameState() == GameState.MAIN_MENU) {
             if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                gameState = GameState.STARTING;
+                setGameState(GameState.STARTING);
             }
-        } else if (gameState == GameState.PAUSED) {
+        } else if (getGameState() == GameState.PAUSED) {
             if (e.getKeyCode() == KeyEvent.VK_2) {
-                gameState = GameState.PAUSED_TO_RUNNING;
+                setGameState(GameState.PAUSED_TO_RUNNING);
             }
-
-        } else if (gameState == GameState.RUNNING) {
+        } else if (getGameState() == GameState.RUNNING) {
 
             if (e.getKeyCode() == KeyEvent.VK_A) {
                 getHero().setVelocity(new Velocity(-getCharacterSpeed(), 0));
@@ -142,18 +93,18 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             } else if (e.getKeyCode() == KeyEvent.VK_S) {
                 getHero().setVelocity(new Velocity(0, getCharacterSpeed()));
             } else if (e.getKeyCode() == KeyEvent.VK_1) {
-                gameState = GameState.RUNNING_TO_MENU;
+                setGameState(GameState.RUNNING_TO_MENU);
                 showItemManager();
             } else if (e.getKeyCode() == KeyEvent.VK_2) {
-                gameState = GameState.RUNNING_TO_PAUSED;
+                setGameState(GameState.RUNNING_TO_PAUSED);
             }
 
-        } else if (gameState == GameState.STARTING) {
+        } else if (getGameState() == GameState.STARTING) {
 
-        } else if (gameState == GameState.STORE_MENU) {
+        } else if (getGameState() == GameState.STORE_MENU) {
 
             if (e.getKeyCode() == KeyEvent.VK_1) {
-                gameState = GameState.MENU_TO_RUNNING;
+                setGameState(GameState.MENU_TO_RUNNING);
             }
         }
 
@@ -161,20 +112,20 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
     @Override
     public void keyReleasedHandler(KeyEvent e) {
-        if (gameState == GameState.MAIN_MENU) {
+        if (getGameState() == GameState.MAIN_MENU) {
 
-        } else if (gameState == GameState.PAUSED) {
+        } else if (getGameState() == GameState.PAUSED) {
 
-        } else if (gameState == GameState.RUNNING) {
+        } else if (getGameState() == GameState.RUNNING) {
             if ((e.getKeyCode() == KeyEvent.VK_A)
                     || (e.getKeyCode() == KeyEvent.VK_D)
                     || (e.getKeyCode() == KeyEvent.VK_W)
                     || (e.getKeyCode() == KeyEvent.VK_S)) {
                 getHero().stop();
             }
-        } else if (gameState == GameState.STARTING) {
+        } else if (getGameState() == GameState.STARTING) {
 
-        } else if (gameState == GameState.STORE_MENU) {
+        } else if (getGameState() == GameState.STORE_MENU) {
 
         }
 
@@ -182,12 +133,35 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
     @Override
     public void environmentMouseClicked(MouseEvent e) {
+        if (getGameState() == getGameState().RUNNING) {
+            shoot(e.getPoint());
+        }
+    }
+
+    Line2D shootLine;
+    private long shootTime;
+    
+    private void shoot(Point point) {
+        System.out.println("BANG");
+        shootTime = System.currentTimeMillis();
+        Velocity shootVector = TrigonometryCalculator.calculateVelocity(hero.getCenterOfMass(), point, 300);
+        shootLine = new Line2D.Float(hero.getCenterOfMass().x, hero.getCenterOfMass().y, hero.getCenterOfMass().x + shootVector.x, hero.getCenterOfMass().y + shootVector.y);
+        
+        for (Zombie zombie : getZombies()) {
+            if (shootLine.intersects(zombie.getObjectBoundary())) {
+                zombie.addToHealth(-33);
+                System.out.println("OUCH!!!!");
+            }
+        }
+        
+//        AudioPlayer.play("/resources/pistol_Shot.mp3");
 
     }
 
     @Override
     public void paintEnvironment(Graphics graphics) {
-        if (gameState == GameState.MAIN_MENU) {
+        
+        if (getGameState() == GameState.MAIN_MENU) {
             graphics.setColor(new Color(179, 51, 0, 200));
             graphics.fillRect(50, 50, 750, 450);
 
@@ -201,7 +175,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             graphics.setColor(Color.GRAY);
             graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 60));
             graphics.drawString("Press Space To Start", 190, 300);
-        } else if (gameState == GameState.PAUSED) {
+        } else if (getGameState() == GameState.PAUSED) {
             graphics.setColor(new Color(0, 0, 0, 150));
             graphics.fillRect(50, 50, 750, 450);
 
@@ -212,11 +186,20 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 60));
             graphics.drawString("Press 2 To Continue", 200, 300);
 
-        } else if (gameState == GameState.RUNNING) {
+        } else if (getGameState() == GameState.RUNNING) {
+            graphics.setFont(new Font("Calibri", Font.PLAIN, 30));
+            graphics.setColor(Color.BLACK);
+//            graphics.fillRect(100, 100, 100, 100);
+            graphics.drawString("Zombie Hit # = " + this.zombieHit, 20, 20);
+            
+            if (shootLine != null) {
+                graphics.setColor(Color.red);
+                graphics.drawLine((int) shootLine.getX1(),(int) shootLine.getY1(),(int) shootLine.getX2(),(int) shootLine.getY2());
+            }
 
-        } else if (gameState == GameState.STARTING) {
+        } else if (getGameState() == GameState.STARTING) {
 
-        } else if (gameState == GameState.STORE_MENU) {
+        } else if (getGameState() == GameState.STORE_MENU) {
             graphics.setColor(new Color(0, 0, 0, 150));
             graphics.fillRect(50, 50, 750, 450);
             graphics.setColor(Color.WHITE);
@@ -225,9 +208,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             graphics.setColor(Color.red);
             graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 30));
             graphics.drawString("Store", 390, 90);
-
         }
-
     }
 
 //<editor-fold defaultstate="collapsed" desc="MouseMotionListener">
@@ -241,7 +222,6 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             getCrosshair().setPosition(new Point(e.getPoint().x - 15, e.getPoint().y - 15));
 
             getHero().setAngle((int) (TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()) * 57));
-
 
         }
     }
@@ -347,7 +327,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         myItems.getItems().add(new Item("Item 7", "7"));
         myItems.getItems().add(new Item("Item 8", "8"));
         myItems.getItems().add(new Item("Item 9", "9"));
-        myItems.getItems().add(new Item("Item 10", "10"));     
+        myItems.getItems().add(new Item("Item 10", "10"));
         myItems.getItems().add(new Item("Item 11", "11"));
         myItems.getItems().add(new Item("Item 12", "12"));
         myItems.getItems().add(new Item("Item 13", "13"));
@@ -369,4 +349,79 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             System.out.println(item.getDisplay());
         }
     }
+
+    /**
+     * @return the gameState
+     */
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    /**
+     * @param gameState the gameState to set
+     */
+    public void setGameState(GameState gameState) {
+        System.out.println(gameState.toString());
+        this.gameState = gameState;
+        if (getGameState() == GameState.MAIN_MENU) {
+
+        } else if (getGameState() == GameState.PAUSED) {
+
+        } else if (getGameState() == GameState.RUNNING) {
+
+        } else if (getGameState() == GameState.STARTING) {
+
+            setCharacterSpeed(3);
+            setZombieSpeed(2);
+
+            setHero(new Character(new Point(100, 100), new Velocity(0, 0)));
+            this.getActors().add(getHero());
+
+            setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
+            this.getActors().add(getCrosshair());
+
+//            this.getActors().add(new Zombie(new Point(randomPoint()), new Velocity(0, 0)));
+            addMouseMotionListener(this);
+
+            zombies = new ArrayList<>();
+            for (int i = 0; i < zombieCount; i++) {
+                Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
+                this.getActors().add(myZombie);
+                this.getZombies().add(myZombie);
+            }
+
+            System.out.println("starting to running");
+
+            setGameState(GameState.RUNNING);
+
+        } else if (getGameState() == GameState.STORE_MENU) {
+
+        } else if (getGameState() == GameState.RUNNING_TO_PAUSED) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            setGameState(GameState.PAUSED);
+
+        } else if (getGameState() == GameState.PAUSED_TO_RUNNING) {
+            for (Zombie aZombie : getZombies()) {
+                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+            }
+            setGameState(getGameState().RUNNING);
+
+        } else if (getGameState() == GameState.RUNNING_TO_MENU) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            setGameState(GameState.STORE_MENU);
+        } else if (getGameState() == GameState.MENU_TO_RUNNING) {
+            for (Zombie aZombie : getZombies()) {
+                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+            }
+            setGameState(getGameState().RUNNING);
+        }
+
+    }
+
 }

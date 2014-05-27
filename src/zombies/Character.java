@@ -8,8 +8,7 @@ package zombies;
 
 import environment.Actor;
 import environment.Velocity;
-import image.ResourceTools;
-import java.awt.Image;
+import images.ResourceTools;
 import java.awt.Point;
 
 /**
@@ -26,5 +25,4 @@ public class Character extends Actor {
         super(position, velocity);
         initialize ();
     }
-    
 }
