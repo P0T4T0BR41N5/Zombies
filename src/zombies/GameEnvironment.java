@@ -56,7 +56,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
     private GameState gameState;
     private int zombieHit = 0;
-    private int zombieCount = 2;
+    private int zombieCount = 5;
 
     Line2D shootLine;
     private long shootTime;
@@ -138,23 +138,12 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
     @Override
     public void initializeEnvironment() {
-        characterSpeed = 3;
-
-        hero = new Character(new Point(100, 100), new Velocity(0, 0));
-        this.getActors().add(hero);
-
-        crosshair = new Crosshair(new Point(100, 100), new Velocity(0, 0));
-        this.getActors().add(crosshair);
-
-        this.getActors().add(new Zombie(new Point(10, 10), new Velocity(0, 0)));
-        addMouseMotionListener(this);
-
         mapVisualizer = new MapVisualizerDefault(true, false);
 
         zombieMap = MapBin.getZombieMap();
         configureMap(zombieMap);
         currentMap = zombieMap;
-        
+
         setGameState(GameState.MAIN_MENU);
     }
 
@@ -167,7 +156,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         if (gameState == GameState.MAIN_MENU) {
         } else if (gameState == GameState.PAUSED) {
         } else if (gameState == GameState.RUNNING) {
-            if (System.currentTimeMillis() - shootTime > 20) {
+            if (System.currentTimeMillis() - shootTime > 40) {
                 shootLine = null;
             }
 
@@ -183,17 +172,22 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             for (Zombie zombie : this.zombies) {
                 if (this.hero.intersects(zombie)) {
                     if (Math.random() > .9) {
-                        hero.addToHealth(-1);
+                        hero.addToHealth(-2);
                     }
                 }
             }
         }
 
+//        if (Math.random() > .98) {
+//            zombies.get((int) (Math.random() * zombies.size())).addToHealth(1);
+//        }
+
         if (hero != null) {
-            if (Math.random() > .98) {
+            if (Math.random() > .99) {
                 hero.addToHealth(2);
             }
         }
+
     }
 
     @Override
@@ -242,7 +236,10 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 if (mapVisualizer != null) {
                     mapVisualizer.toggleShowAllObjects();
                 }
+            } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                shoot(this.crosshair.getCenterOfMass());
             }
+
         } else if (gameState == GameState.STARTING) {
         } else if (gameState == GameState.STORE_MENU) {
 
@@ -278,18 +275,18 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
     private void shoot(Point point) {
         System.out.println("BANG");
+        AudioPlayer.play("/resources/pistol_shot.wav");
         shootTime = System.currentTimeMillis();
         Velocity shootVector = TrigonometryCalculator.calculateVelocity(hero.getCenterOfMass(), point, 300);
         shootLine = new Line2D.Float(hero.getCenterOfMass().x, hero.getCenterOfMass().y, hero.getCenterOfMass().x + shootVector.x, hero.getCenterOfMass().y + shootVector.y);
 
         for (Zombie zombie : getZombies()) {
             if (shootLine.intersects(zombie.getObjectBoundary())) {
-                zombie.addToHealth(-33);
+                zombie.addToHealth(-10);
                 System.out.println("OUCH!!!!");
             }
         }
 
-//        AudioPlayer.play("/resources/pistol_Shot.mp3");
     }
 
     @Override
@@ -321,6 +318,10 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             graphics.drawString("Press 2 To Continue", 200, 300);
 
         } else if (getGameState() == GameState.RUNNING) {
+            if (currentMap != null) {
+                currentMap.drawMap(graphics);
+            }
+
             graphics.setFont(new Font("Calibri", Font.PLAIN, 30));
             graphics.setColor(Color.BLACK);
 //            graphics.fillRect(100, 100, 100, 100);
@@ -344,9 +345,6 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             graphics.drawString("Store", 390, 90);
         }
 
-        if (currentMap != null) {
-            currentMap.drawMap(graphics);
-        }
     }
 
 //<editor-fold defaultstate="collapsed" desc="MouseMotionListener">
@@ -430,7 +428,6 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
             this.getActors().add(getCrosshair());
 
-//            this.getActors().add(new Zombie(new Point(randomPoint()), new Velocity(0, 0)));
             addMouseMotionListener(this);
 
             zombies = new ArrayList<>();
