@@ -45,6 +45,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     private int zombieSpeed;
     private GameState gameState = GameState.MAIN_MENU;
     private Map currentMap, zombieMap;
+    private Map zombietwo;
     private MapVisualizerDefault mapVisualizer;
 
     @Override
@@ -63,9 +64,14 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
         mapVisualizer = new MapVisualizerDefault(true, false);
 
-        zombieMap = MapBin.getZombieMap();
+        zombietwo = MapBin.getRoom2Map();
+        configureMap(zombietwo);
+
+        zombieMap = MapBin.getRoom1Map();
         configureMap(zombieMap);
-        currentMap = zombieMap;
+        Map.addPortal(zombieMap, new Point(9, 5), zombietwo, new Point(10, 9));
+
+        setCurrentMap(zombieMap);
     }
 
     private void configureMap(Map map) {
@@ -142,7 +148,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 }
             }
         }
-        
+
         if (hero != null) {
             if (Math.random() > .98) {
                 hero.addToHealth(2);
@@ -179,21 +185,21 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             } else if (e.getKeyCode() == KeyEvent.VK_2) {
                 gameState = GameState.RUNNING_TO_PAUSED;
             } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
+                Point newPosition = (Point) getCurrentMap().getPosition().clone();
                 newPosition.y -= 10;
-                currentMap.setPosition(newPosition);
+                getCurrentMap().setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
+                Point newPosition = (Point) getCurrentMap().getPosition().clone();
                 newPosition.y += 10;
-                currentMap.setPosition(newPosition);
+                getCurrentMap().setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
+                Point newPosition = (Point) getCurrentMap().getPosition().clone();
                 newPosition.x -= 10;
-                currentMap.setPosition(newPosition);
+                getCurrentMap().setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
+                Point newPosition = (Point) getCurrentMap().getPosition().clone();
                 newPosition.x += 10;
-                currentMap.setPosition(newPosition);
+                getCurrentMap().setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_E) {
                 if (mapVisualizer != null) {
                     mapVisualizer.toggleShowAllObjects();
@@ -226,12 +232,16 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
     @Override
     public void environmentMouseClicked(MouseEvent e) {
+        if (e.isControlDown()) {
+            getCurrentMap().validateLocation(getCurrentMap().getCellLocation(e.getPoint()));
+            
+        }
     }
 
     @Override
     public void paintEnvironment(Graphics graphics) {
-        
-        
+
+
         if (gameState == GameState.MAIN_MENU) {
             graphics.setColor(new Color(179, 51, 0, 200));
             graphics.fillRect(50, 50, 750, 450);
@@ -271,8 +281,8 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
         }
 
-        if (currentMap != null) {
-            currentMap.drawMap(graphics);
+        if (getCurrentMap() != null) {
+            getCurrentMap().drawMap(graphics);
         }
     }
 
@@ -413,5 +423,34 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         for (Item item : itemList.getItems()) {
             System.out.println(item.getDisplay());
         }
+    }
+
+    /**
+     * @return the zombietwo
+     */
+    public Map getZombietwo() {
+        return zombietwo;
+    }
+
+    /**
+     * @param zombietwo the zombietwo to set
+     */
+    public void setZombietwo(Map zombietwo) {
+        this.zombietwo = zombietwo;
+        configureMap(this.zombietwo);
+    }
+
+    /**
+     * @return the currentMap
+     */
+    public Map getCurrentMap() {
+        return currentMap;
+    }
+
+    /**
+     * @param currentMap the currentMap to set
+     */
+    public void setCurrentMap(Map currentMap) {
+        this.currentMap = currentMap;
     }
 }
