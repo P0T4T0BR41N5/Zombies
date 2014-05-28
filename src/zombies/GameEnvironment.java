@@ -58,8 +58,11 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     private int zombieHit = 0;
     private int zombieCount = 5;
 
+    private boolean shotPause = false;
+
     Line2D shootLine;
     private long shootTime;
+    private long shotDely;
 
     /**
      * @return the hero
@@ -160,15 +163,18 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 shootLine = null;
             }
 
+            if (System.currentTimeMillis() - shotDely > 200) {
+                shotPause = false;
+            }
+
             for (Zombie aZombie : getZombies()) {
-                if ((Math.random() >= .95) && aZombie.isAlive()) {
+                if ((Math.random() >= .98) && aZombie.isAlive()) {
                     aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
                     aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
                 }
             }
-        }
-
-        if ((hero != null) && (zombies != null)) {
+            
+            if ((hero != null) && (zombies != null)) {
             for (Zombie zombie : this.zombies) {
                 if (this.hero.intersects(zombie)) {
                     if (Math.random() > .9) {
@@ -178,15 +184,17 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             }
         }
 
-//        if (Math.random() > .98) {
-//            zombies.get((int) (Math.random() * zombies.size())).addToHealth(1);
-//        }
-
         if (hero != null) {
-            if (Math.random() > .99) {
+            if (Math.random() > .99)  {
                 hero.addToHealth(2);
             }
+            if (hero.getHealth() <= 0) {
+                setGameState(gameState.DEAD);
+            }
         }
+        }
+
+        
 
     }
 
@@ -274,17 +282,22 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     }
 
     private void shoot(Point point) {
-        System.out.println("BANG");
-        AudioPlayer.play("/resources/pistol_shot.wav");
-        shootTime = System.currentTimeMillis();
-        Velocity shootVector = TrigonometryCalculator.calculateVelocity(hero.getCenterOfMass(), point, 300);
-        shootLine = new Line2D.Float(hero.getCenterOfMass().x, hero.getCenterOfMass().y, hero.getCenterOfMass().x + shootVector.x, hero.getCenterOfMass().y + shootVector.y);
+        if (!shotPause) {
+            System.out.println("BANG");
+            AudioPlayer.play("/resources/pistol_shot.wav");
+            shootTime = System.currentTimeMillis();
+            Velocity shootVector = TrigonometryCalculator.calculateVelocity(hero.getCenterOfMass(), point, 300);
+            shootLine = new Line2D.Float(hero.getCenterOfMass().x, hero.getCenterOfMass().y, hero.getCenterOfMass().x + shootVector.x, hero.getCenterOfMass().y + shootVector.y);
 
-        for (Zombie zombie : getZombies()) {
-            if (shootLine.intersects(zombie.getObjectBoundary())) {
-                zombie.addToHealth(-10);
-                System.out.println("OUCH!!!!");
+            for (Zombie zombie : getZombies()) {
+                if (shootLine.intersects(zombie.getObjectBoundary())) {
+                    zombie.addToHealth(-10);
+                    System.out.println("Zombie Hit");
+                    break;
+                }
             }
+            shotPause = true;
+            shotDely = System.currentTimeMillis();
         }
 
     }
@@ -343,6 +356,8 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             graphics.setColor(Color.red);
             graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 30));
             graphics.drawString("Store", 390, 90);
+        } else if (gameState == GameState.DEAD) {
+            
         }
 
     }
@@ -436,6 +451,10 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 this.getActors().add(myZombie);
                 this.getZombies().add(myZombie);
             }
+            
+            for (Zombie aZombie : getZombies()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+            }
 
             System.out.println("starting to running");
 
@@ -452,7 +471,9 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
         } else if (getGameState() == GameState.PAUSED_TO_RUNNING) {
             for (Zombie aZombie : getZombies()) {
-                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                if (aZombie.isAlive()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                }
             }
             setGameState(getGameState().RUNNING);
 
@@ -464,7 +485,9 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             setGameState(GameState.STORE_MENU);
         } else if (getGameState() == GameState.MENU_TO_RUNNING) {
             for (Zombie aZombie : getZombies()) {
-                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                if (aZombie.isAlive()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                }
             }
             setGameState(getGameState().RUNNING);
         }
