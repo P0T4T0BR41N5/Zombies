@@ -9,7 +9,10 @@ package zombies;
 import environment.Actor;
 import environment.Velocity;
 import images.ResourceTools;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
+import static zombies.Character.MAX_HEALTH;
 
 /**
  *
@@ -27,6 +30,15 @@ public class Zombie extends Actor {
         this.setImage(ResourceTools.loadImageFromResource("resources/zombie.png"));
     }
     
+     @Override
+    public void paint(Graphics graphics) {
+        super.paint(graphics);
+
+        graphics.setColor(Color.BLACK);
+        graphics.draw3DRect(this.getPosition().x, this.getPosition().y, 30, 5, true);
+        graphics.setColor(Color.red);
+        graphics.fillRect(this.getPosition().x, this.getPosition().y, 30 * health / MAX_HEALTH, 5);
+    }
     public Zombie(Point position, Velocity velocity) {
         super(position, velocity);
         initialize();
