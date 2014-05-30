@@ -173,28 +173,26 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                     aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
                 }
             }
-            
+
             if ((hero != null) && (zombies != null)) {
-            for (Zombie zombie : this.zombies) {
-                if (this.hero.intersects(zombie)) {
-                    if (Math.random() > .9) {
-                        hero.addToHealth(-2);
+                for (Zombie zombie : this.zombies) {
+                    if (this.hero.intersects(zombie)) {
+                        if ((Math.random() > .9) && (zombie.isAlive())) {
+                            hero.addToHealth(-2);
+                        }
                     }
                 }
             }
-        }
 
-        if (hero != null) {
-            if (Math.random() > .99)  {
-                hero.addToHealth(2);
-            }
-            if (hero.getHealth() <= 0) {
-                setGameState(gameState.DEAD);
+            if (hero != null) {
+                if (Math.random() > .99) {
+                    hero.addToHealth(2);
+                }
+                if (hero.getHealth() <= 0) {
+                    setGameState(gameState.DEAD);
+                }
             }
         }
-        }
-
-        
 
     }
 
@@ -357,7 +355,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 30));
             graphics.drawString("Store", 390, 90);
         } else if (gameState == GameState.DEAD) {
-            
+
         }
 
     }
@@ -369,12 +367,15 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        if (getCrosshair() != null) {
-            getCrosshair().setPosition(new Point(e.getPoint().x - 15, e.getPoint().y - 15));
+        if (getGameState() == gameState.RUNNING) {
+            if (getCrosshair() != null) {
+                getCrosshair().setPosition(new Point(e.getPoint().x - 15, e.getPoint().y - 15));
 
-            getHero().setAngle((int) (TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()) * 57));
+                getHero().setAngle((int) (TrigonometryCalculator.calculateAngle(getHero().getCenterOfMass(), getCrosshair().getCenterOfMass()) * 57));
 
+            }
         }
+
     }
 //</editor-fold>
 
@@ -451,9 +452,11 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 this.getActors().add(myZombie);
                 this.getZombies().add(myZombie);
             }
-            
+
             for (Zombie aZombie : getZombies()) {
-                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
+
             }
 
             System.out.println("starting to running");
@@ -489,7 +492,13 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                     aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
                 }
             }
-            setGameState(getGameState().RUNNING);
+            setGameState(GameState.RUNNING);
+        } else if (getGameState() == GameState.DEAD) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            this.crosshair.setImage(null);
         }
 
     }
