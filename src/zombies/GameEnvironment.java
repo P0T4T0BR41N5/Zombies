@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import map.Map;
 import map.MapVisualizerDefault;
+import map.Obstacle;
+import map.ObstacleEventHandlerIntf;
 import path.TrigonometryCalculator;
 
 /**
@@ -36,7 +38,8 @@ import path.TrigonometryCalculator;
 // - ROTATE CHARACTER AND ZOMBIES
 // - ADD MAP
 // - 
-class GameEnvironment extends Environment implements MouseMotionListener, ItemManagerResponseIntf {
+class GameEnvironment extends Environment implements MouseMotionListener,
+        ItemManagerResponseIntf, MoveValidatorIntf, ObstacleEventHandlerIntf {
 
 //<editor-fold defaultstate="collapsed" desc="Properties">
     private Character hero;
@@ -44,21 +47,21 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     private Crosshair crosshair;
     private int characterSpeed;
     private int zombieSpeed;
-    
+
     private Map currentMap, zombieMap;
     private MapVisualizerDefault mapVisualizer;
-    
+
     private GameState gameState;
     private int zombieHit = 0;
     private int zombieCount = 5;
-    
+
     private boolean shotPause = false;
-    
+
     Line2D shootLine;
     private long shootTime;
     private long shotDelay;
-    
-        /**
+
+    /**
      * @return the gameState
      */
     public GameState getGameState() {
@@ -82,7 +85,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
             setCharacterSpeed(3);
             setZombieSpeed(2);
 
-            setHero(new Character(new Point(100, 100), new Velocity(0, 0)));
+            setHero(new Character(new Point(200, 200), new Velocity(0, 2), this));
             this.getActors().add(getHero());
 
             setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
@@ -146,71 +149,70 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         }
 
     }
-    
-    
+
     /**
      * @return the hero
      */
     public Character getHero() {
         return hero;
     }
-    
+
     /**
      * @param hero the hero to set
      */
     public void setHero(Character hero) {
         this.hero = hero;
     }
-    
+
     /**
      * @return the crosshair
      */
     public Crosshair getCrosshair() {
         return crosshair;
     }
-    
+
     /**
      * @param crosshair the crosshair to set
      */
     public void setCrosshair(Crosshair crosshair) {
         this.crosshair = crosshair;
     }
-    
+
     /**
      * @return the characterSpeed
      */
     public int getCharacterSpeed() {
         return characterSpeed;
     }
-    
+
     /**
      * @param characterSpeed the characterSpeed to set
      */
     public void setCharacterSpeed(int characterSpeed) {
         this.characterSpeed = characterSpeed;
     }
-    
+
     /**
      * @return the zombieSpeed
      */
     public int getZombieSpeed() {
         return zombieSpeed;
     }
-    
+
     /**
      * @param zombieSpeed the zombieSpeed to set
      */
     public void setZombieSpeed(int zombieSpeed) {
         this.zombieSpeed = zombieSpeed;
     }
-    
+
     /**
      * @return the zombies
      */
     public ArrayList<Zombie> getZombies() {
         return zombies;
     }
-    
+
     /**
      * @param zombies the zombies to set
      */
@@ -233,10 +235,15 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         currentMap = zombieMap;
 
         setGameState(GameState.MAIN_MENU);
+
+        if (mapVisualizer != null) {
+            mapVisualizer.toggleShowAllObjects();
+        }
     }
 
     private void configureMap(Map map) {
         map.setMapVisualizer(mapVisualizer);
+        map.setObstacleEventHandler(this);
     }
 
     @Override
@@ -462,6 +469,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     }
 //</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Map Item Management">
     private void showItemManager() {
         JFrame frame = new JFrame("Item Manager");
         ItemList myItems = new ItemList();
@@ -490,13 +498,59 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         frame.setVisible(true);
     }
 
+    @Override
     public void handleItemManagerResponse(ItemList itemList) {
         System.out.println("IM Response");
         for (Item item : itemList.getItems()) {
             System.out.println(item.getDisplay());
         }
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="MoveValidatorIntf Methods">
+    /**
+     * @param currentLocation the current system coordinate
+     * @param proposedLocation the proposed system coordinate; this point will
+     * be validated against the content of the map (Items, Obstacles, and
+     * Portals).
+     *
+     * @return the validation assessment: while the handling of the result is up
+     * to the calling method, presumably, a "false" will be not allowed to go to
+     * the proposed location, while a "true" will be allowed to go to this
+     * location.
+     */
+    @Override
+    public boolean validateMove(Point currentLocation, Point proposedLocation) {
+        /*  Only validate if we are crossing a cell boundary, i.e. entering a 
+         *  different cell than we currently occupy.
+         */
 
+        System.out.printf("Current [%d, %d] Proposed [%d, %d] \n", currentLocation.x, currentLocation.y, proposedLocation.x, proposedLocation.y);
+
+        if (currentMap != null) {
+//            System.out.println("Current Map OK");
+            //check if I am crossing a cell boundary, i.e. current cell != cell(proposedLocation))
+            Point cellLocationCurrent = currentMap.getCellLocation(currentLocation);
+            Point cellLocationProposed = currentMap.getCellLocation(proposedLocation);
+
+            if (!cellLocationCurrent.equals(cellLocationProposed)) {
+
+                System.out.printf("Current Cell [%d, %d] Proposed Cell [%d, %d] \n", cellLocationCurrent.x, cellLocationCurrent.y, cellLocationProposed.x, cellLocationProposed.y);
+                System.out.println("XXxxxxxxxxxxxxx");
+                return currentMap.validateLocation(cellLocationProposed);
+            }
+        }
+
+        return true;
+    }
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="ObstacleEventHandlerIntf Methods">
+    @Override
+    public boolean obstacleEvent(Obstacle obstacle) {
+        System.out.println("Obstacle = " + obstacle.getType().toString());
+        return false;
+    }
+//</editor-fold>
 
 }
