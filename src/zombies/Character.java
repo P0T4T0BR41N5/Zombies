@@ -7,7 +7,7 @@ package zombies;
 
 import environment.Actor;
 import environment.Velocity;
-import image.ResourceTools;
+import images.ResourceTools;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;

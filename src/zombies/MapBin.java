@@ -4,7 +4,7 @@
  */
 package zombies;
 
-import image.ResourceTools;
+import images.ResourceTools;
 import java.awt.Dimension;
 import java.awt.Point;
 import map.Map;
