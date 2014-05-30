@@ -5,13 +5,9 @@
  */
 package zombies;
 
-import environment.Environment;
-import environment.Velocity;
 import audio.AudioPlayer;
-import environment.Actor;
 import environment.Environment;
 import environment.Velocity;
-import images.ResourceTools;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -21,12 +17,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import map.Map;
 import map.MapVisualizerDefault;
-import map.MapVisualizerIntf;
 import path.TrigonometryCalculator;
 
 /**
@@ -44,95 +38,186 @@ import path.TrigonometryCalculator;
 // - 
 class GameEnvironment extends Environment implements MouseMotionListener, ItemManagerResponseIntf {
 
+//<editor-fold defaultstate="collapsed" desc="Properties">
     private Character hero;
-//    private Zombie zombie;
     private ArrayList<Zombie> zombies;
     private Crosshair crosshair;
     private int characterSpeed;
     private int zombieSpeed;
-
+    
     private Map currentMap, zombieMap;
     private MapVisualizerDefault mapVisualizer;
-
+    
     private GameState gameState;
     private int zombieHit = 0;
     private int zombieCount = 5;
-
+    
     private boolean shotPause = false;
-
+    
     Line2D shootLine;
     private long shootTime;
-    private long shotDely;
+    private long shotDelay;
+    
+        /**
+     * @return the gameState
+     */
+    public GameState getGameState() {
+        return gameState;
+    }
 
+    /**
+     * @param gameState the gameState to set
+     */
+    public void setGameState(GameState gameState) {
+        System.out.println(gameState.toString());
+        this.gameState = gameState;
+        if (getGameState() == GameState.MAIN_MENU) {
+
+        } else if (getGameState() == GameState.PAUSED) {
+
+        } else if (getGameState() == GameState.RUNNING) {
+
+        } else if (getGameState() == GameState.STARTING) {
+
+            setCharacterSpeed(3);
+            setZombieSpeed(2);
+
+            setHero(new Character(new Point(100, 100), new Velocity(0, 0)));
+            this.getActors().add(getHero());
+
+            setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
+            this.getActors().add(getCrosshair());
+
+            addMouseMotionListener(this);
+
+            zombies = new ArrayList<>();
+            for (int i = 0; i < zombieCount; i++) {
+                Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
+                this.getActors().add(myZombie);
+                this.getZombies().add(myZombie);
+            }
+
+            for (Zombie aZombie : getZombies()) {
+                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
+
+            }
+
+            System.out.println("starting to running");
+
+            setGameState(GameState.RUNNING);
+
+        } else if (getGameState() == GameState.STORE_MENU) {
+
+        } else if (getGameState() == GameState.RUNNING_TO_PAUSED) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            setGameState(GameState.PAUSED);
+
+        } else if (getGameState() == GameState.PAUSED_TO_RUNNING) {
+            for (Zombie aZombie : getZombies()) {
+                if (aZombie.isAlive()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                }
+            }
+            setGameState(getGameState().RUNNING);
+
+        } else if (getGameState() == GameState.RUNNING_TO_MENU) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            setGameState(GameState.STORE_MENU);
+        } else if (getGameState() == GameState.MENU_TO_RUNNING) {
+            for (Zombie aZombie : getZombies()) {
+                if (aZombie.isAlive()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                }
+            }
+            setGameState(GameState.RUNNING);
+        } else if (getGameState() == GameState.DEAD) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            this.crosshair.setImage(null);
+        }
+
+    }
+    
+    
     /**
      * @return the hero
      */
     public Character getHero() {
         return hero;
     }
-
+    
     /**
      * @param hero the hero to set
      */
     public void setHero(Character hero) {
         this.hero = hero;
     }
-
+    
     /**
      * @return the crosshair
      */
     public Crosshair getCrosshair() {
         return crosshair;
     }
-
+    
     /**
      * @param crosshair the crosshair to set
      */
     public void setCrosshair(Crosshair crosshair) {
         this.crosshair = crosshair;
     }
-
+    
     /**
      * @return the characterSpeed
      */
     public int getCharacterSpeed() {
         return characterSpeed;
     }
-
+    
     /**
      * @param characterSpeed the characterSpeed to set
      */
     public void setCharacterSpeed(int characterSpeed) {
         this.characterSpeed = characterSpeed;
     }
-
+    
     /**
      * @return the zombieSpeed
      */
     public int getZombieSpeed() {
         return zombieSpeed;
     }
-
+    
     /**
      * @param zombieSpeed the zombieSpeed to set
      */
     public void setZombieSpeed(int zombieSpeed) {
         this.zombieSpeed = zombieSpeed;
     }
-
+    
     /**
      * @return the zombies
      */
     public ArrayList<Zombie> getZombies() {
         return zombies;
     }
-
+    
     /**
      * @param zombies the zombies to set
      */
     public void setZombies(ArrayList<Zombie> zombies) {
         this.zombies = zombies;
     }
+//</editor-fold>
 
     private Point randomPoint() {
         return new Point((int) (Math.random() * 500), (int) (Math.random() * 500));
@@ -163,7 +248,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 shootLine = null;
             }
 
-            if (System.currentTimeMillis() - shotDely > 200) {
+            if (System.currentTimeMillis() - shotDelay > 200) {
                 shotPause = false;
             }
 
@@ -248,9 +333,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
         } else if (gameState == GameState.STARTING) {
         } else if (gameState == GameState.STORE_MENU) {
-
             setGameState(GameState.RUNNING_TO_PAUSED);
-
         }
     }
 
@@ -295,7 +378,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 }
             }
             shotPause = true;
-            shotDely = System.currentTimeMillis();
+            shotDelay = System.currentTimeMillis();
         }
 
     }
@@ -414,93 +497,6 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         }
     }
 
-    /**
-     * @return the gameState
-     */
-    public GameState getGameState() {
-        return gameState;
-    }
 
-    /**
-     * @param gameState the gameState to set
-     */
-    public void setGameState(GameState gameState) {
-        System.out.println(gameState.toString());
-        this.gameState = gameState;
-        if (getGameState() == GameState.MAIN_MENU) {
-
-        } else if (getGameState() == GameState.PAUSED) {
-
-        } else if (getGameState() == GameState.RUNNING) {
-
-        } else if (getGameState() == GameState.STARTING) {
-
-            setCharacterSpeed(3);
-            setZombieSpeed(2);
-
-            setHero(new Character(new Point(100, 100), new Velocity(0, 0)));
-            this.getActors().add(getHero());
-
-            setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
-            this.getActors().add(getCrosshair());
-
-            addMouseMotionListener(this);
-
-            zombies = new ArrayList<>();
-            for (int i = 0; i < zombieCount; i++) {
-                Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
-                this.getActors().add(myZombie);
-                this.getZombies().add(myZombie);
-            }
-
-            for (Zombie aZombie : getZombies()) {
-                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-                aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
-
-            }
-
-            System.out.println("starting to running");
-
-            setGameState(GameState.RUNNING);
-
-        } else if (getGameState() == GameState.STORE_MENU) {
-
-        } else if (getGameState() == GameState.RUNNING_TO_PAUSED) {
-            for (Zombie zombie : zombies) {
-                zombie.stop();
-            }
-            hero.stop();
-            setGameState(GameState.PAUSED);
-
-        } else if (getGameState() == GameState.PAUSED_TO_RUNNING) {
-            for (Zombie aZombie : getZombies()) {
-                if (aZombie.isAlive()) {
-                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-                }
-            }
-            setGameState(getGameState().RUNNING);
-
-        } else if (getGameState() == GameState.RUNNING_TO_MENU) {
-            for (Zombie zombie : zombies) {
-                zombie.stop();
-            }
-            hero.stop();
-            setGameState(GameState.STORE_MENU);
-        } else if (getGameState() == GameState.MENU_TO_RUNNING) {
-            for (Zombie aZombie : getZombies()) {
-                if (aZombie.isAlive()) {
-                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-                }
-            }
-            setGameState(GameState.RUNNING);
-        } else if (getGameState() == GameState.DEAD) {
-            for (Zombie zombie : zombies) {
-                zombie.stop();
-            }
-            hero.stop();
-            this.crosshair.setImage(null);
-        }
-
-    }
 
 }

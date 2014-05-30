@@ -18,31 +18,42 @@ import java.awt.Point;
  */
 public class Character extends Actor {
 
+//<editor-fold defaultstate="collapsed" desc="Constructor / Initialization">
     private void initialize() {
         this.setImage(ResourceTools.loadImageFromResource("resources/character.png"));
     }
-
+    
     public Character(Point position, Velocity velocity) {
         super(position, velocity);
         initialize();
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Painting">
     @Override
     public void paint(Graphics graphics) {
         super.paint(graphics);
-
+        
         graphics.setColor(Color.BLACK);
         graphics.draw3DRect(this.getPosition().x, this.getPosition().y, 30, 5, true);
         graphics.setColor(Color.red);
         graphics.fillRect(this.getPosition().x, this.getPosition().y, 30 * health / MAX_HEALTH, 5);
     }
+//</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Properties">
     public static int MIN_HEALTH = 0;
     public static int MAX_HEALTH = 100;
-
+    
     private int health = MAX_HEALTH;
 
+    public static int MIN_SPEED = 0;
+    public static int DEFAULT_SPEED = 3;
+    public static int MAX_SPEED = 6;
+    
+    private int speed = DEFAULT_SPEED; 
+
+    
     /**
      * @return the health
      */
@@ -68,6 +79,20 @@ public class Character extends Actor {
         } else {
             this.health = health;
         }
+    }
+
+    /**
+     * @return the speed
+     */
+    public int getSpeed() {
+        return speed;
+    }
+
+    /**
+     * @param speed the speed to set
+     */
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 //</editor-fold>
 }
