@@ -12,7 +12,6 @@ import images.ResourceTools;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import static zombies.Character.MAX_HEALTH;
 
 /**
  *
@@ -20,12 +19,8 @@ import static zombies.Character.MAX_HEALTH;
  */
 
 public class Zombie extends Actor {
-    //give a default picture...
     
-    
-    private boolean alive = true;
-    private int health = 100;
-    
+//<editor-fold defaultstate="collapsed" desc="Constructor / Initialization">
     private void initialize(){
         this.setImage(ResourceTools.loadImageFromResource("resources/zombie.png"));
     }
@@ -34,14 +29,23 @@ public class Zombie extends Actor {
         super(position, velocity);
         initialize();
     }
-
+//</editor-fold>
+    
+//<editor-fold defaultstate="collapsed" desc="Properties">
+    public static int MIN_HEALTH = 0;
+    public static int MAX_HEALTH = 100;
+    
+    
+    private boolean alive = true;
+    private int health = 100;    
+    
     /**
      * @return the Health
      */
     public int getHealth() {
         return health;
     }
-
+    
     /**
      * @param health the Health to set
      */
@@ -53,20 +57,20 @@ public class Zombie extends Actor {
         this.health = health;
     }
     
-     /**
+    /**
      * @param health the Health to set
      */
     public void addToHealth(int health) {
         setHealth(this.health + health);
     }
-
+    
     /**
      * @return the alive
      */
     public boolean isAlive() {
         return alive;
     }
-
+    
     /**
      * @param alive the alive to set
      */
@@ -78,14 +82,19 @@ public class Zombie extends Actor {
         }
         this.alive = alive;
     }
+//</editor-fold>
     
+//<editor-fold defaultstate="collapsed" desc="Painting">
     @Override
     public void paint(Graphics graphics) {
         super.paint(graphics);
 
-//        graphics.setColor(Color.BL  on().x, this.getPosition().y, 30, 5, true);
+        //draw a health bar
+        graphics.setColor(Color.BLACK);
+        graphics.draw3DRect(this.getPosition().x, this.getPosition().y, 30, 5, true);
         graphics.setColor(Color.GREEN);
         graphics.fillRect(this.getPosition().x, this.getPosition().y, 30 * health / MAX_HEALTH, 5);
     }
+//</editor-fold>
     
 }

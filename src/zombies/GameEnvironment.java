@@ -5,13 +5,9 @@
  */
 package zombies;
 
-import environment.Environment;
-import environment.Velocity;
 import audio.AudioPlayer;
-import environment.Actor;
 import environment.Environment;
 import environment.Velocity;
-import images.ResourceTools;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -21,12 +17,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import map.Map;
 import map.MapVisualizerDefault;
-import map.MapVisualizerIntf;
+import map.Obstacle;
+import map.ObstacleEventHandlerIntf;
 import path.TrigonometryCalculator;
 
 /**
@@ -42,10 +38,11 @@ import path.TrigonometryCalculator;
 // - ROTATE CHARACTER AND ZOMBIES
 // - ADD MAP
 // - 
-class GameEnvironment extends Environment implements MouseMotionListener, ItemManagerResponseIntf {
+class GameEnvironment extends Environment implements MouseMotionListener,
+        ItemManagerResponseIntf, MoveValidatorIntf, ObstacleEventHandlerIntf {
 
+//<editor-fold defaultstate="collapsed" desc="Properties">
     private Character hero;
-//    private Zombie zombie;
     private ArrayList<Zombie> zombies;
     private Crosshair crosshair;
     private int characterSpeed;
@@ -62,7 +59,96 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
     Line2D shootLine;
     private long shootTime;
-    private long shotDely;
+    private long shotDelay;
+
+    /**
+     * @return the gameState
+     */
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    /**
+     * @param gameState the gameState to set
+     */
+    public void setGameState(GameState gameState) {
+        System.out.println(gameState.toString());
+        this.gameState = gameState;
+        if (getGameState() == GameState.MAIN_MENU) {
+
+        } else if (getGameState() == GameState.PAUSED) {
+
+        } else if (getGameState() == GameState.RUNNING) {
+
+        } else if (getGameState() == GameState.STARTING) {
+
+            setCharacterSpeed(3);
+            setZombieSpeed(2);
+
+            setHero(new Character(new Point(200, 200), new Velocity(0, 2), this));
+            this.getActors().add(getHero());
+
+            setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
+            this.getActors().add(getCrosshair());
+
+            addMouseMotionListener(this);
+
+            zombies = new ArrayList<>();
+            for (int i = 0; i < zombieCount; i++) {
+                Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
+                this.getActors().add(myZombie);
+                this.getZombies().add(myZombie);
+            }
+
+            for (Zombie aZombie : getZombies()) {
+                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
+
+            }
+
+            System.out.println("starting to running");
+
+            setGameState(GameState.RUNNING);
+
+        } else if (getGameState() == GameState.STORE_MENU) {
+
+        } else if (getGameState() == GameState.RUNNING_TO_PAUSED) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            setGameState(GameState.PAUSED);
+
+        } else if (getGameState() == GameState.PAUSED_TO_RUNNING) {
+            for (Zombie aZombie : getZombies()) {
+                if (aZombie.isAlive()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                }
+            }
+            setGameState(getGameState().RUNNING);
+
+        } else if (getGameState() == GameState.RUNNING_TO_MENU) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            setGameState(GameState.STORE_MENU);
+        } else if (getGameState() == GameState.MENU_TO_RUNNING) {
+            for (Zombie aZombie : getZombies()) {
+                if (aZombie.isAlive()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                }
+            }
+            setGameState(GameState.RUNNING);
+        } else if (getGameState() == GameState.DEAD) {
+            for (Zombie zombie : zombies) {
+                zombie.stop();
+            }
+            hero.stop();
+            this.crosshair.setImage(null);
+        }
+
+    }
 
     /**
      * @return the hero
@@ -133,6 +219,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     public void setZombies(ArrayList<Zombie> zombies) {
         this.zombies = zombies;
     }
+//</editor-fold>
 
     private Point randomPoint() {
         return new Point((int) (Math.random() * 500), (int) (Math.random() * 500));
@@ -148,10 +235,15 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         currentMap = zombieMap;
 
         setGameState(GameState.MAIN_MENU);
+
+        if (mapVisualizer != null) {
+            mapVisualizer.toggleShowAllObjects();
+        }
     }
 
     private void configureMap(Map map) {
         map.setMapVisualizer(mapVisualizer);
+        map.setObstacleEventHandler(this);
     }
 
     @Override
@@ -163,7 +255,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 shootLine = null;
             }
 
-            if (System.currentTimeMillis() - shotDely > 200) {
+            if (System.currentTimeMillis() - shotDelay > 200) {
                 shotPause = false;
             }
 
@@ -248,9 +340,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
 
         } else if (gameState == GameState.STARTING) {
         } else if (gameState == GameState.STORE_MENU) {
-
             setGameState(GameState.RUNNING_TO_PAUSED);
-
         }
     }
 
@@ -295,7 +385,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
                 }
             }
             shotPause = true;
-            shotDely = System.currentTimeMillis();
+            shotDelay = System.currentTimeMillis();
         }
 
     }
@@ -379,6 +469,7 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
     }
 //</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Map Item Management">
     private void showItemManager() {
         JFrame frame = new JFrame("Item Manager");
         ItemList myItems = new ItemList();
@@ -407,100 +498,59 @@ class GameEnvironment extends Environment implements MouseMotionListener, ItemMa
         frame.setVisible(true);
     }
 
+    @Override
     public void handleItemManagerResponse(ItemList itemList) {
         System.out.println("IM Response");
         for (Item item : itemList.getItems()) {
             System.out.println(item.getDisplay());
         }
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="MoveValidatorIntf Methods">
     /**
-     * @return the gameState
+     * @param currentLocation the current system coordinate
+     * @param proposedLocation the proposed system coordinate; this point will
+     * be validated against the content of the map (Items, Obstacles, and
+     * Portals).
+     *
+     * @return the validation assessment: while the handling of the result is up
+     * to the calling method, presumably, a "false" will be not allowed to go to
+     * the proposed location, while a "true" will be allowed to go to this
+     * location.
      */
-    public GameState getGameState() {
-        return gameState;
-    }
+    @Override
+    public boolean validateMove(Point currentLocation, Point proposedLocation) {
+        /*  Only validate if we are crossing a cell boundary, i.e. entering a 
+         *  different cell than we currently occupy.
+         */
 
-    /**
-     * @param gameState the gameState to set
-     */
-    public void setGameState(GameState gameState) {
-        System.out.println(gameState.toString());
-        this.gameState = gameState;
-        if (getGameState() == GameState.MAIN_MENU) {
+        System.out.printf("Current [%d, %d] Proposed [%d, %d] \n", currentLocation.x, currentLocation.y, proposedLocation.x, proposedLocation.y);
 
-        } else if (getGameState() == GameState.PAUSED) {
+        if (currentMap != null) {
+//            System.out.println("Current Map OK");
+            //check if I am crossing a cell boundary, i.e. current cell != cell(proposedLocation))
+            Point cellLocationCurrent = currentMap.getCellLocation(currentLocation);
+            Point cellLocationProposed = currentMap.getCellLocation(proposedLocation);
 
-        } else if (getGameState() == GameState.RUNNING) {
+            if (!cellLocationCurrent.equals(cellLocationProposed)) {
 
-        } else if (getGameState() == GameState.STARTING) {
-
-            setCharacterSpeed(3);
-            setZombieSpeed(2);
-
-            setHero(new Character(new Point(100, 100), new Velocity(0, 0)));
-            this.getActors().add(getHero());
-
-            setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
-            this.getActors().add(getCrosshair());
-
-            addMouseMotionListener(this);
-
-            zombies = new ArrayList<>();
-            for (int i = 0; i < zombieCount; i++) {
-                Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
-                this.getActors().add(myZombie);
-                this.getZombies().add(myZombie);
+                System.out.printf("Current Cell [%d, %d] Proposed Cell [%d, %d] \n", cellLocationCurrent.x, cellLocationCurrent.y, cellLocationProposed.x, cellLocationProposed.y);
+                System.out.println("XXxxxxxxxxxxxxx");
+                return currentMap.validateLocation(cellLocationProposed);
             }
-
-            for (Zombie aZombie : getZombies()) {
-                aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-                aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
-
-            }
-
-            System.out.println("starting to running");
-
-            setGameState(GameState.RUNNING);
-
-        } else if (getGameState() == GameState.STORE_MENU) {
-
-        } else if (getGameState() == GameState.RUNNING_TO_PAUSED) {
-            for (Zombie zombie : zombies) {
-                zombie.stop();
-            }
-            hero.stop();
-            setGameState(GameState.PAUSED);
-
-        } else if (getGameState() == GameState.PAUSED_TO_RUNNING) {
-            for (Zombie aZombie : getZombies()) {
-                if (aZombie.isAlive()) {
-                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-                }
-            }
-            setGameState(getGameState().RUNNING);
-
-        } else if (getGameState() == GameState.RUNNING_TO_MENU) {
-            for (Zombie zombie : zombies) {
-                zombie.stop();
-            }
-            hero.stop();
-            setGameState(GameState.STORE_MENU);
-        } else if (getGameState() == GameState.MENU_TO_RUNNING) {
-            for (Zombie aZombie : getZombies()) {
-                if (aZombie.isAlive()) {
-                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
-                }
-            }
-            setGameState(GameState.RUNNING);
-        } else if (getGameState() == GameState.DEAD) {
-            for (Zombie zombie : zombies) {
-                zombie.stop();
-            }
-            hero.stop();
-            this.crosshair.setImage(null);
         }
 
+        return true;
     }
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="ObstacleEventHandlerIntf Methods">
+    @Override
+    public boolean obstacleEvent(Obstacle obstacle) {
+        System.out.println("Obstacle = " + obstacle.getType().toString());
+        return false;
+    }
+//</editor-fold>
 
 }
