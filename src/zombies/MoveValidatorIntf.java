@@ -7,11 +7,12 @@
 package zombies;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 /**
  *
  * @author kevin.lawrence
  */
 public interface MoveValidatorIntf {
-    public boolean validateMove(Point currentLocation, Point proposedLocation);
+    public boolean validateMove(ArrayList<Point> proposedLocations);
 }
