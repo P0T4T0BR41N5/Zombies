@@ -53,7 +53,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
     private GameState gameState;
     private int zombieHit = 0;
-    private int zombieCount = 5;
+    private int zombieCount = 1;
 
     private boolean shotPause = false;
 
@@ -223,7 +223,6 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
     private Point randomPoint() {
         return new Point((int) (Math.random() * 500), (int) (Math.random() * 500));
-
     }
 
     @Override
@@ -314,23 +313,25 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             } else if (e.getKeyCode() == KeyEvent.VK_2) {
 
                 setGameState(GameState.RUNNING_TO_PAUSED);
-            } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
-                newPosition.y -= 10;
-                currentMap.setPosition(newPosition);
-            } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
-                newPosition.y += 10;
-                currentMap.setPosition(newPosition);
-            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
-                newPosition.x -= 10;
-                currentMap.setPosition(newPosition);
-            } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
-                newPosition.x += 10;
-                currentMap.setPosition(newPosition);
-            } else if (e.getKeyCode() == KeyEvent.VK_E) {
+            } 
+//            else if (e.getKeyCode() == KeyEvent.VK_UP) {
+//                Point newPosition = (Point) currentMap.getPosition().clone();
+//                newPosition.y -= 10;
+//                currentMap.setPosition(newPosition);
+//            } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+//                Point newPosition = (Point) currentMap.getPosition().clone();
+//                newPosition.y += 10;
+//                currentMap.setPosition(newPosition);
+//            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+//                Point newPosition = (Point) currentMap.getPosition().clone();
+//                newPosition.x -= 10;
+//                currentMap.setPosition(newPosition);
+//            } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+//                Point newPosition = (Point) currentMap.getPosition().clone();
+//                newPosition.x += 10;
+//                currentMap.setPosition(newPosition);
+//            } 
+            else if (e.getKeyCode() == KeyEvent.VK_E) {
                 if (mapVisualizer != null) {
                     mapVisualizer.toggleShowAllObjects();
                 }
@@ -520,28 +521,20 @@ class GameEnvironment extends Environment implements MouseMotionListener,
      * location.
      */
     @Override
-    public boolean validateMove(Point currentLocation, Point proposedLocation) {
-        /*  Only validate if we are crossing a cell boundary, i.e. entering a 
-         *  different cell than we currently occupy.
-         */
-
-        System.out.printf("Current [%d, %d] Proposed [%d, %d] \n", currentLocation.x, currentLocation.y, proposedLocation.x, proposedLocation.y);
-
+//    public boolean validateMove(Point currentLocation, Point proposedLocation) {
+    public boolean validateMove(ArrayList<Point> proposedLocations) {
+        boolean validated = true;
         if (currentMap != null) {
-//            System.out.println("Current Map OK");
-            //check if I am crossing a cell boundary, i.e. current cell != cell(proposedLocation))
-            Point cellLocationCurrent = currentMap.getCellLocation(currentLocation);
-            Point cellLocationProposed = currentMap.getCellLocation(proposedLocation);
-
-            if (!cellLocationCurrent.equals(cellLocationProposed)) {
-
-                System.out.printf("Current Cell [%d, %d] Proposed Cell [%d, %d] \n", cellLocationCurrent.x, cellLocationCurrent.y, cellLocationProposed.x, cellLocationProposed.y);
-                System.out.println("XXxxxxxxxxxxxxx");
-                return currentMap.validateLocation(cellLocationProposed);
+            for (Point location : proposedLocations){
+                validated &= currentMap.validateLocation(currentMap.getCellLocation(location));
             }
+            
+//            Point cellLocationCurrent = currentMap.getCellLocation(currentLocation);
+//            Point cellLocationProposed = currentMap.getCellLocation(proposedLocation);
+//
+//            return currentMap.validateLocation(cellLocationProposed);
         }
-
-        return true;
+        return validated;
     }
 //</editor-fold>
 
