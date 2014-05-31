@@ -528,17 +528,17 @@ class GameEnvironment extends Environment implements MouseMotionListener,
         System.out.printf("Current [%d, %d] Proposed [%d, %d] \n", currentLocation.x, currentLocation.y, proposedLocation.x, proposedLocation.y);
 
         if (currentMap != null) {
-//            System.out.println("Current Map OK");
             //check if I am crossing a cell boundary, i.e. current cell != cell(proposedLocation))
             Point cellLocationCurrent = currentMap.getCellLocation(currentLocation);
             Point cellLocationProposed = currentMap.getCellLocation(proposedLocation);
 
-            if (!cellLocationCurrent.equals(cellLocationProposed)) {
-
-                System.out.printf("Current Cell [%d, %d] Proposed Cell [%d, %d] \n", cellLocationCurrent.x, cellLocationCurrent.y, cellLocationProposed.x, cellLocationProposed.y);
-                System.out.println("XXxxxxxxxxxxxxx");
-                return currentMap.validateLocation(cellLocationProposed);
-            }
+            return currentMap.validateLocation(cellLocationProposed);
+//            if (!cellLocationCurrent.equals(cellLocationProposed)) {
+//
+//                System.out.printf("Current Cell [%d, %d] Proposed Cell [%d, %d] \n", cellLocationCurrent.x, cellLocationCurrent.y, cellLocationProposed.x, cellLocationProposed.y);
+//                System.out.println("XXxxxxxxxxxxxxx");
+//                return currentMap.validateLocation(cellLocationProposed);
+//            }
         }
 
         return true;
