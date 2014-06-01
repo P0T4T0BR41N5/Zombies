@@ -23,6 +23,7 @@ import map.Map;
 import map.MapVisualizerDefault;
 import map.Obstacle;
 import map.ObstacleEventHandlerIntf;
+import map.ObstacleType;
 import path.TrigonometryCalculator;
 
 /**
@@ -549,6 +550,9 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     @Override
     public boolean obstacleEvent(Obstacle obstacle) {
         System.out.println("Obstacle = " + obstacle.getType().toString());
+        if (obstacle.getType() == ObstacleType.BARRIER) {
+            
+        }
         return false;
     }
 //</editor-fold>
