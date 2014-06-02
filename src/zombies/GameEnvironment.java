@@ -446,6 +446,14 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
             graphics.drawString("Store", 390, 90);
         } else if (gameState == GameState.DEAD) {
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 80));
+           graphics.fillRect(0, 0, 1000, 800);
+                       graphics.setColor(Color.white);
+
+            graphics.drawString("GAME OVER", 240, 300);
+                       graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
+
+            graphics.drawString("Score:" + this.zombieHit, 250, 380);
 
         }
 
