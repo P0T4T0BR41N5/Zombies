@@ -372,7 +372,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
     private void shoot(Point point) {
         if (!shotPause) {
-            System.out.println("BANG");
+//            System.out.println("BANG");
             AudioPlayer.play("/resources/pistol_shot.wav");
             shootTime = System.currentTimeMillis();
             Velocity shootVector = TrigonometryCalculator.calculateVelocity(hero.getCenterOfMass(), point, 300);
@@ -381,7 +381,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             for (Zombie zombie : getZombies()) {
                 if (shootLine.intersects(zombie.getObjectBoundary())) {
                     zombie.addToHealth(-10);
-                    System.out.println("Zombie Hit");
+//                    System.out.println("Zombie Hit");
                     break;
                 }
             }
@@ -526,7 +526,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
          *  different cell than we currently occupy.
          */
 
-        System.out.printf("Current [%d, %d] Proposed [%d, %d] \n", currentLocation.x, currentLocation.y, proposedLocation.x, proposedLocation.y);
+//        System.out.printf("Current [%d, %d] Proposed [%d, %d] \n", currentLocation.x, currentLocation.y, proposedLocation.x, proposedLocation.y);
 
         if (currentMap != null) {
 //            System.out.println("Current Map OK");
@@ -536,8 +536,8 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
             if (!cellLocationCurrent.equals(cellLocationProposed)) {
 
-                System.out.printf("Current Cell [%d, %d] Proposed Cell [%d, %d] \n", cellLocationCurrent.x, cellLocationCurrent.y, cellLocationProposed.x, cellLocationProposed.y);
-                System.out.println("XXxxxxxxxxxxxxx");
+//                System.out.printf("Current Cell [%d, %d] Proposed Cell [%d, %d] \n", cellLocationCurrent.x, cellLocationCurrent.y, cellLocationProposed.x, cellLocationProposed.y);
+//                System.out.println("XXxxxxxxxxxxxxx");
                 return currentMap.validateLocation(cellLocationProposed);
             }
         }
