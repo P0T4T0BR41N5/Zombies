@@ -402,21 +402,21 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             graphics.fillRect(100, 100, 650, 350);
 
             graphics.setColor(Color.red);
-            graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 100));
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 100));
             graphics.drawString("Zombies", 260, 200);
 
             graphics.setColor(Color.GRAY);
-            graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 60));
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 60));
             graphics.drawString("Press Space To Start", 190, 300);
         } else if (getGameState() == GameState.PAUSED) {
             graphics.setColor(new Color(0, 0, 0, 150));
             graphics.fillRect(50, 50, 750, 450);
 
             graphics.setColor(Color.WHITE);
-            graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 30));
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
             graphics.drawString("Paused", 390, 90);
             graphics.setColor(Color.GRAY);
-            graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 60));
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 60));
             graphics.drawString("Press 2 To Continue", 200, 300);
 
         } else if (getGameState() == GameState.RUNNING) {
@@ -443,7 +443,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             graphics.fillRect(100, 100, 650, 350);
 
             graphics.setColor(Color.red);
-            graphics.setFont(new Font("DEMON SKER", Font.PLAIN, 30));
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
             graphics.drawString("Store", 390, 90);
         } else if (gameState == GameState.DEAD) {
 
