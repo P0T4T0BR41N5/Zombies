@@ -311,14 +311,14 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             } else if (e.getKeyCode() == KeyEvent.VK_1) {
                 setGameState(GameState.RUNNING_TO_MENU);
                 showItemManager();
-            } 
+            }
             if (e.getKeyCode() == KeyEvent.VK_UP) {
                 Point newPosition = (Point) currentMap.getPosition().clone();
-                newPosition.y -= 10;
+                newPosition.y += 10;
                 currentMap.setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                 Point newPosition = (Point) currentMap.getPosition().clone();
-                newPosition.y += 10;
+                newPosition.y -= 10;
                 currentMap.setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
                 Point newPosition = (Point) currentMap.getPosition().clone();
@@ -328,8 +328,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
                 Point newPosition = (Point) currentMap.getPosition().clone();
                 newPosition.x += 10;
                 currentMap.setPosition(newPosition);
-            } 
-            else if (e.getKeyCode() == KeyEvent.VK_2) {
+            } else if (e.getKeyCode() == KeyEvent.VK_2) {
 
                 setGameState(GameState.RUNNING_TO_PAUSED);
 
@@ -410,6 +409,10 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             graphics.setColor(Color.GRAY);
             graphics.setFont(new Font("CALIBRI", Font.PLAIN, 60));
             graphics.drawString("Press Space To Start", 190, 300);
+            graphics.setColor(Color.RED);
+
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 20));
+            graphics.drawString("Press 2 to pause", 365, 350);
         } else if (getGameState() == GameState.PAUSED) {
             graphics.setColor(new Color(0, 0, 0, 150));
             graphics.fillRect(50, 50, 750, 450);
