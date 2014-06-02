@@ -294,6 +294,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
                 setGameState(GameState.STARTING);
             }
         } else if (getGameState() == GameState.PAUSED) {
+
             if (e.getKeyCode() == KeyEvent.VK_2) {
                 setGameState(GameState.PAUSED_TO_RUNNING);
             }
@@ -310,28 +311,29 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             } else if (e.getKeyCode() == KeyEvent.VK_1) {
                 setGameState(GameState.RUNNING_TO_MENU);
                 showItemManager();
-            } else if (e.getKeyCode() == KeyEvent.VK_2) {
+            } 
+            if (e.getKeyCode() == KeyEvent.VK_UP) {
+                Point newPosition = (Point) currentMap.getPosition().clone();
+                newPosition.y -= 10;
+                currentMap.setPosition(newPosition);
+            } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                Point newPosition = (Point) currentMap.getPosition().clone();
+                newPosition.y += 10;
+                currentMap.setPosition(newPosition);
+            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                Point newPosition = (Point) currentMap.getPosition().clone();
+                newPosition.x -= 10;
+                currentMap.setPosition(newPosition);
+            } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                Point newPosition = (Point) currentMap.getPosition().clone();
+                newPosition.x += 10;
+                currentMap.setPosition(newPosition);
+            } 
+            else if (e.getKeyCode() == KeyEvent.VK_2) {
 
                 setGameState(GameState.RUNNING_TO_PAUSED);
-            } 
-//            else if (e.getKeyCode() == KeyEvent.VK_UP) {
-//                Point newPosition = (Point) currentMap.getPosition().clone();
-//                newPosition.y -= 10;
-//                currentMap.setPosition(newPosition);
-//            } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-//                Point newPosition = (Point) currentMap.getPosition().clone();
-//                newPosition.y += 10;
-//                currentMap.setPosition(newPosition);
-//            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-//                Point newPosition = (Point) currentMap.getPosition().clone();
-//                newPosition.x -= 10;
-//                currentMap.setPosition(newPosition);
-//            } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-//                Point newPosition = (Point) currentMap.getPosition().clone();
-//                newPosition.x += 10;
-//                currentMap.setPosition(newPosition);
-//            } 
-            else if (e.getKeyCode() == KeyEvent.VK_E) {
+
+            } else if (e.getKeyCode() == KeyEvent.VK_E) {
                 if (mapVisualizer != null) {
                     mapVisualizer.toggleShowAllObjects();
                 }
@@ -447,11 +449,11 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             graphics.drawString("Store", 390, 90);
         } else if (gameState == GameState.DEAD) {
             graphics.setFont(new Font("CALIBRI", Font.PLAIN, 80));
-           graphics.fillRect(0, 0, 1000, 800);
-                       graphics.setColor(Color.white);
+            graphics.fillRect(0, 0, 1000, 800);
+            graphics.setColor(Color.white);
 
             graphics.drawString("GAME OVER", 240, 300);
-                       graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
 
             graphics.drawString("Score:" + this.zombieHit, 250, 380);
 
@@ -533,10 +535,10 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     public boolean validateMove(ArrayList<Point> proposedLocations) {
         boolean validated = true;
         if (currentMap != null) {
-            for (Point location : proposedLocations){
+            for (Point location : proposedLocations) {
                 validated &= currentMap.validateLocation(currentMap.getCellLocation(location));
             }
-            
+
 //            Point cellLocationCurrent = currentMap.getCellLocation(currentLocation);
 //            Point cellLocationProposed = currentMap.getCellLocation(proposedLocation);
 //
