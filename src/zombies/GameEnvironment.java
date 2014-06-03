@@ -235,9 +235,9 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
         setGameState(GameState.MAIN_MENU);
 
-        if (mapVisualizer != null) {
-            mapVisualizer.toggleShowAllObjects();
-        }
+//        if (mapVisualizer != null) {
+//            mapVisualizer.toggleShowAllObjects();
+//        }
     }
 
     private void configureMap(Map map) {
@@ -554,7 +554,8 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 //<editor-fold defaultstate="collapsed" desc="ObstacleEventHandlerIntf Methods">
     @Override
     public boolean obstacleEvent(Obstacle obstacle) {
-        System.out.println("Obstacle = " + obstacle.getType().toString());
+//        System.out.println("Obstacle = " + obstacle.getType().toString());
+        
         return false;
     }
 //</editor-fold>
