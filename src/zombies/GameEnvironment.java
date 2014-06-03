@@ -53,7 +53,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
     private GameState gameState;
     private int zombieHit = 0;
-    private int zombieCount = 10;
+    private int zombieCount = 1;
 
     private boolean shotPause = false;
 
