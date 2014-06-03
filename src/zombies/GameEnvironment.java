@@ -555,7 +555,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     @Override
     public boolean obstacleEvent(Obstacle obstacle) {
 //        System.out.println("Obstacle = " + obstacle.getType().toString());
-        
+            AudioPlayer.play("/resources/barriersound.wav");
         return false;
     }
 //</editor-fold>
