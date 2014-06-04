@@ -60,6 +60,8 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     Line2D shootLine;
     private long shootTime;
     private long shotDelay;
+    
+    private Point spawnPoint = new Point(760, 650);
 
     /**
      * @return the gameState
@@ -95,7 +97,8 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
             zombies = new ArrayList<>();
             for (int i = 0; i < zombieCount; i++) {
-                Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0));
+//                Zombie myZombie = new Zombie(new Point(this.randomPoint()), new Velocity(0, 0), this);
+                Zombie myZombie = new Zombie(new Point(spawnPoint), new Velocity(0, 0), this);
                 this.getActors().add(myZombie);
                 this.getZombies().add(myZombie);
             }
@@ -227,11 +230,13 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
     @Override
     public void initializeEnvironment() {
+        this.setBackground(Color.BLACK);
+        
         mapVisualizer = new MapVisualizerDefault(true, false);
 
         zombieMap = MapBin.getZombieMap();
         configureMap(zombieMap);
-        currentMap = zombieMap;
+        setCurrentMap(zombieMap);
 
         setGameState(GameState.MAIN_MENU);
 
@@ -313,21 +318,21 @@ class GameEnvironment extends Environment implements MouseMotionListener,
                 showItemManager();
             }
             if (e.getKeyCode() == KeyEvent.VK_UP) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
+                Point newPosition = (Point) getCurrentMap().getPosition().clone();
                 newPosition.y += 10;
-                currentMap.setPosition(newPosition);
+                getCurrentMap().setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
+                Point newPosition = (Point) getCurrentMap().getPosition().clone();
                 newPosition.y -= 10;
-                currentMap.setPosition(newPosition);
+                getCurrentMap().setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
+                Point newPosition = (Point) getCurrentMap().getPosition().clone();
                 newPosition.x -= 10;
-                currentMap.setPosition(newPosition);
+                getCurrentMap().setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                Point newPosition = (Point) currentMap.getPosition().clone();
+                Point newPosition = (Point) getCurrentMap().getPosition().clone();
                 newPosition.x += 10;
-                currentMap.setPosition(newPosition);
+                getCurrentMap().setPosition(newPosition);
             } else if (e.getKeyCode() == KeyEvent.VK_2) {
 
                 setGameState(GameState.RUNNING_TO_PAUSED);
@@ -368,6 +373,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     public void environmentMouseClicked(MouseEvent e) {
         if (getGameState() == getGameState().RUNNING) {
             shoot(e.getPoint());
+            System.out.println(e.getX() + ", " + e.getY());
         }
     }
 
@@ -383,7 +389,9 @@ class GameEnvironment extends Environment implements MouseMotionListener,
                 if (shootLine.intersects(zombie.getObjectBoundary())) {
                     zombie.addToHealth(-10);
                     System.out.println("Zombie Hit");
+                    
                     break;
+                    
                 }
             }
             shotPause = true;
@@ -425,8 +433,8 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             graphics.drawString("Press 2 To Continue", 200, 300);
 
         } else if (getGameState() == GameState.RUNNING) {
-            if (currentMap != null) {
-                currentMap.drawMap(graphics);
+            if (getCurrentMap() != null) {
+                getCurrentMap().drawMap(graphics);
             }
 
             graphics.setFont(new Font("Calibri", Font.PLAIN, 30));
@@ -537,9 +545,9 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 //    public boolean validateMove(Point currentLocation, Point proposedLocation) {
     public boolean validateMove(ArrayList<Point> proposedLocations) {
         boolean validated = true;
-        if (currentMap != null) {
+        if (getCurrentMap() != null) {
             for (Point location : proposedLocations) {
-                validated &= currentMap.validateLocation(currentMap.getCellLocation(location));
+                validated &= getCurrentMap().validateLocation(getCurrentMap().getCellLocation(location));
             }
 
 //            Point cellLocationCurrent = currentMap.getCellLocation(currentLocation);
@@ -559,5 +567,22 @@ class GameEnvironment extends Environment implements MouseMotionListener,
         return false;
     }
 //</editor-fold>
+
+    /**
+     * @return the currentMap
+     */
+    public Map getCurrentMap() {
+        return currentMap;
+    }
+
+    /**
+     * @param currentMap the currentMap to set
+     */
+    public void setCurrentMap(Map currentMap) {
+        this.currentMap = currentMap;
+//        this.setSize(200, 800);
+        System.out.println("Change Map");
+        
+    }
 
 }

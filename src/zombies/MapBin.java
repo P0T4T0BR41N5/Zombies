@@ -67,7 +67,7 @@ public class MapBin {
         Map.addObstacleRange(zombieMap, new Point(41, 8), new Point(43, 8), ObstacleType.BARRIER);
         Map.addObstacleRange(zombieMap, new Point(42, 9), new Point(44, 9), ObstacleType.BARRIER);
         Map.addObstacleRange(zombieMap, new Point(42, 10), new Point(44, 10), ObstacleType.BARRIER);
-        Map.addObstacleRange(zombieMap, new Point(44, 26), new Point(45, 26), ObstacleType.BARRIER);
+//        Map.addObstacleRange(zombieMap, new Point(44, 26), new Point(45, 26), ObstacleType.BARRIER);
         Map.addObstacleRange(zombieMap, new Point(35, 18), new Point(35, 23), ObstacleType.BARRIER);
         Map.addObstacleRange(zombieMap, new Point(36, 20), new Point(44, 20), ObstacleType.BARRIER);
         Map.addObstacleRange(zombieMap, new Point(38, 19), new Point(45, 19), ObstacleType.BARRIER);
@@ -84,6 +84,9 @@ public class MapBin {
         Map.addObstacleRange(zombieMap, new Point(67, 4), new Point(67, 7), ObstacleType.BARRIER);
         Map.addObstacleRange(zombieMap, new Point(66, 4), new Point(66, 7), ObstacleType.BARRIER);
         Map.addObstacleRange(zombieMap, new Point(69, 6), new Point(69, 7), ObstacleType.BARRIER);
+        
+        
+        Map.addObstacleRange(zombieMap, new Point(58, 0), new Point(58, 27), ObstacleType.BARRIER);
 
         return zombieMap;
     }
