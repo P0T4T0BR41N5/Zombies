@@ -6,6 +6,7 @@
 
 package zombies;
 
+import audio.AudioPlayer;
 import environment.Actor;
 import environment.Velocity;
 import images.ResourceTools;
@@ -76,9 +77,49 @@ public class Zombie extends Actor {
      */
     public void setAlive(boolean alive) {
         if ((this.alive) && !(alive)) {
-            //play dying sound
-            //maybe change image to dead guy on ground
+            if (Math.random() < 0.1) {
+                AudioPlayer.play("/resources/zombie_growl_1.wav");
+                System.out.println("sound 1");
+
+            } else if (Math.random() < 0.2) {
+                AudioPlayer.play("/resources/zombie_growl_2.wav");
+                System.out.println("sound 2");
+
+            } else if (Math.random() < 0.3) {
+                AudioPlayer.play("/resources/zombie_growl_3.wav");
+                System.out.println("sound 3");
+
+            } else if (Math.random() < 0.4) {
+                AudioPlayer.play("/resources/zombie_growl_4.wav");
+                System.out.println("sound 4");
+
+            } else if(Math.random() < 0.5) {
+                AudioPlayer.play("/resources/zombie_growl_5.wav");
+                System.out.println("sound 5");
+
+            } else if (Math.random() < 0.6) {
+                AudioPlayer.play("/resources/zombie_growl_6.wav");
+                System.out.println("sound 6");
+
+            } else if (Math.random() < 0.7) {
+                AudioPlayer.play("/resources/zombie_growl_7.wav");
+                System.out.println("sound 7");
+
+            } else if (Math.random() < 0.8) {
+                AudioPlayer.play("/resources/zombie_growl_8.wav");
+                System.out.println("sound 8");
+
+            } else if (Math.random() < 0.9) {
+                AudioPlayer.play("/resources/zombie_growl_9.wav");
+                System.out.println("sound 9");
+
+            } else {
+                AudioPlayer.play("/resources/zombie_growl_10.wav");
+                System.out.println("sound 10");
+
+            }
             this.stop();
+            this.setPosition(-100, -100);
         }
         this.alive = alive;
     }
