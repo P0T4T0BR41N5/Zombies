@@ -7,6 +7,7 @@
 package zombies;
 
 import environment.ApplicationStarter;
+import java.awt.Dimension;
 
 /**
  *
@@ -23,6 +24,7 @@ public class Zombies {
 
     private static void start() {
         ApplicationStarter.run("Zombie Game", new GameEnvironment());
+        ApplicationStarter.run(new String[0], "Zombie Game", new Dimension(100, 200) , new GameEnvironment());
     }
     
 }

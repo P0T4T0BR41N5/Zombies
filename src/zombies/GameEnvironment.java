@@ -34,10 +34,7 @@ import path.TrigonometryCalculator;
  *
  * private Character hero;
  */
-// TODO:
-// - ROTATE CHARACTER AND ZOMBIES
-// - ADD MAP
-// - 
+
 class GameEnvironment extends Environment implements MouseMotionListener,
         ItemManagerResponseIntf, MoveValidatorIntf, ObstacleEventHandlerIntf {
 
@@ -53,7 +50,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
     private GameState gameState;
     private int zombieHit = 0;
-    private int zombieCount = 1;
+    private int zombieCount = 0;
 
     private boolean shotPause = false;
 

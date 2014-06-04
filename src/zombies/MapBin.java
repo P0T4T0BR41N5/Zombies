@@ -17,7 +17,7 @@ import map.ObstacleType;
 public class MapBin {
 
     public static Map getZombieMap() {
-        Map zombieMap = new Map(ResourceTools.loadImageFromResource("resources/zombie_room_01.png"), new Dimension(32, 32), new Dimension(50, 50));
+        Map zombieMap = new Map(ResourceTools.loadImageFromResource("resources/zombie_room_01.png"), new Dimension(32, 32), new Dimension(59, 31));
         Map.addObstacle(zombieMap, new Point(7, 1), ObstacleType.BARRIER);
         Map.addObstacle(zombieMap, new Point(6, 12), ObstacleType.BARRIER);
         Map.addObstacle(zombieMap, new Point(5, 22), ObstacleType.BARRIER);
