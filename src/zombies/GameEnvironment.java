@@ -282,7 +282,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             }
 
             for (Zombie aZombie : getZombies()) {
-                if ((Math.random() >= .995) && aZombie.isAlive()) {
+                if ((Math.random() >= .99) && aZombie.isAlive()) {
                     aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
                     aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
                 }
@@ -292,7 +292,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
                 for (Zombie zombie : this.zombies) {
                     if (this.hero.intersects(zombie)) {
                         if ((Math.random() > .9) && (zombie.isAlive())) {
-                            hero.addToHealth(-2);
+                            hero.addToHealth(-7);
                         }
                     }
                 }
@@ -459,17 +459,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
         } else if (getGameState() == GameState.STARTING) {
 
-        } //        else if (getGameState() == GameState.STORE_MENU) {
-        //            graphics.setColor(new Color(0, 0, 0, 150));
-        //            graphics.fillRect(50, 50, 750, 450);
-        //            graphics.setColor(Color.WHITE);
-        //            graphics.fillRect(100, 100, 650, 350);
-        //
-        //            graphics.setColor(Color.red);
-        //            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
-        //            graphics.drawString("Store", 390, 90);
-        //        } 
-        else if (gameState == GameState.DEAD) {
+        } else if (gameState == GameState.DEAD) {
             graphics.setColor(Color.red);
             graphics.setFont(new Font("CALIBRI", Font.PLAIN, 300));
             graphics.drawString("GAME OVER", 180, 500);
