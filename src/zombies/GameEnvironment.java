@@ -342,11 +342,13 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
                 setGameState(GameState.RUNNING_TO_PAUSED);
 
-            } else if (e.getKeyCode() == KeyEvent.VK_E) {
-                if (mapVisualizer != null) {
-                    mapVisualizer.toggleShowAllObjects();
-                }
-            } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            } 
+//            else if (e.getKeyCode() == KeyEvent.VK_E) {
+//                if (mapVisualizer != null) {
+//                    mapVisualizer.toggleShowAllObjects();
+//                }
+//            }
+            else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                 shoot(this.crosshair.getCenterOfMass());
             }
 
