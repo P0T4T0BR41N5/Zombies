@@ -47,20 +47,23 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     private Crosshair crosshair;
     private int characterSpeed;
     private int zombieSpeed;
+    private int bullets = 50;
 
     private Map currentMap, zombieMap;
     private MapVisualizerDefault mapVisualizer;
 
     private GameState gameState;
-    private int zombieHit = 0;
+    private int money = 0;
     private int zombieCount = 1;
+    private int waveNumber = 1;
 
     private boolean shotPause = false;
 
     Line2D shootLine;
     private long shootTime;
     private long shotDelay;
-    
+    private long zombieDelay;
+
     private Point spawnPoint = new Point(760, 650);
 
     /**
@@ -87,7 +90,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             setCharacterSpeed(3);
             setZombieSpeed(2);
 
-            setHero(new Character(new Point(200, 200), new Velocity(0, 2), this));
+            setHero(new Character(new Point(200, 200), new Velocity(0, 0), this));
             this.getActors().add(getHero());
 
             setCrosshair(new Crosshair(new Point(100, 100), new Velocity(0, 0)));
@@ -224,14 +227,10 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     }
 //</editor-fold>
 
-    private Point randomPoint() {
-        return new Point((int) (Math.random() * 500), (int) (Math.random() * 500));
-    }
-
     @Override
     public void initializeEnvironment() {
         this.setBackground(Color.BLACK);
-        
+
         mapVisualizer = new MapVisualizerDefault(true, false);
 
         zombieMap = MapBin.getZombieMap();
@@ -239,7 +238,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
         setCurrentMap(zombieMap);
 
         setGameState(GameState.MAIN_MENU);
-
+        zombieDelay = System.currentTimeMillis();
 //        if (mapVisualizer != null) {
 //            mapVisualizer.toggleShowAllObjects();
 //        }
@@ -262,9 +261,28 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             if (System.currentTimeMillis() - shotDelay > 200) {
                 shotPause = false;
             }
+            if (System.currentTimeMillis() - zombieDelay > 20000) {
+
+                this.zombieCount += 1;
+
+                for (int i = 0; i < zombieCount; i++) {
+                    Zombie myZombie = new Zombie(new Point(spawnPoint), new Velocity(0, 0), this);
+                    this.getActors().add(myZombie);
+                    this.getZombies().add(myZombie);
+                }
+
+                for (Zombie aZombie : getZombies()) {
+                    aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
+                    aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
+                }
+
+                zombieDelay = System.currentTimeMillis();
+                waveNumber += 1;
+
+            }
 
             for (Zombie aZombie : getZombies()) {
-                if ((Math.random() >= .98) && aZombie.isAlive()) {
+                if ((Math.random() >= .995) && aZombie.isAlive()) {
                     aZombie.setVelocity(TrigonometryCalculator.calculateVelocity(aZombie.getPosition(), hero.getPosition(), 2));
                     aZombie.setAngle((int) (TrigonometryCalculator.calculateAngle(aZombie.getPosition(), hero.getPosition()) * 57));
                 }
@@ -314,25 +332,12 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             } else if (e.getKeyCode() == KeyEvent.VK_S) {
                 getHero().setVelocity(new Velocity(0, getCharacterSpeed()));
             } else if (e.getKeyCode() == KeyEvent.VK_1) {
-                setGameState(GameState.RUNNING_TO_MENU);
-                showItemManager();
-            }
-            if (e.getKeyCode() == KeyEvent.VK_UP) {
-                Point newPosition = (Point) getCurrentMap().getPosition().clone();
-                newPosition.y += 10;
-                getCurrentMap().setPosition(newPosition);
-            } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                Point newPosition = (Point) getCurrentMap().getPosition().clone();
-                newPosition.y -= 10;
-                getCurrentMap().setPosition(newPosition);
-            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                Point newPosition = (Point) getCurrentMap().getPosition().clone();
-                newPosition.x -= 10;
-                getCurrentMap().setPosition(newPosition);
-            } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                Point newPosition = (Point) getCurrentMap().getPosition().clone();
-                newPosition.x += 10;
-                getCurrentMap().setPosition(newPosition);
+//                setGameState(GameState.RUNNING_TO_MENU);
+//                showItemManager();
+                if (this.money >= 15) {
+                    this.money -= 15;
+                    this.bullets += 20;
+                }
             } else if (e.getKeyCode() == KeyEvent.VK_2) {
 
                 setGameState(GameState.RUNNING_TO_PAUSED);
@@ -378,20 +383,22 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     }
 
     private void shoot(Point point) {
-        if (!shotPause) {
+        if ((!shotPause) && (this.bullets > 0)) {
             System.out.println("BANG");
             AudioPlayer.play("/resources/pistol_shot.wav");
             shootTime = System.currentTimeMillis();
             Velocity shootVector = TrigonometryCalculator.calculateVelocity(hero.getCenterOfMass(), point, 300);
             shootLine = new Line2D.Float(hero.getCenterOfMass().x, hero.getCenterOfMass().y, hero.getCenterOfMass().x + shootVector.x, hero.getCenterOfMass().y + shootVector.y);
+            this.bullets -= 1;
 
             for (Zombie zombie : getZombies()) {
                 if (shootLine.intersects(zombie.getObjectBoundary())) {
-                    zombie.addToHealth(-10);
+                    zombie.addToHealth(-20);
                     System.out.println("Zombie Hit");
-                    
+                    this.money += 1;
+
                     break;
-                    
+
                 }
             }
             shotPause = true;
@@ -404,23 +411,12 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     public void paintEnvironment(Graphics graphics) {
 
         if (getGameState() == GameState.MAIN_MENU) {
-            graphics.setColor(new Color(179, 51, 0, 200));
-            graphics.fillRect(50, 50, 750, 450);
-
-            graphics.setColor(Color.black);
-            graphics.fillRect(100, 100, 650, 350);
-
-            graphics.setColor(Color.red);
-            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 100));
-            graphics.drawString("Zombies", 260, 200);
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 300));
+            graphics.drawString("Zombies", 450, 500);
 
             graphics.setColor(Color.GRAY);
             graphics.setFont(new Font("CALIBRI", Font.PLAIN, 60));
-            graphics.drawString("Press Space To Start", 190, 300);
-            graphics.setColor(Color.RED);
-
-            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 20));
-            graphics.drawString("Press 2 to pause", 365, 350);
+            graphics.drawString("Press Space To Start", 700, 900);
         } else if (getGameState() == GameState.PAUSED) {
             graphics.setColor(new Color(0, 0, 0, 150));
             graphics.fillRect(50, 50, 750, 450);
@@ -437,10 +433,24 @@ class GameEnvironment extends Environment implements MouseMotionListener,
                 getCurrentMap().drawMap(graphics);
             }
 
-            graphics.setFont(new Font("Calibri", Font.PLAIN, 30));
+            graphics.setColor(new Color(255, 255, 255, 200));
+            graphics.fillRect(10, 870, 1850, 105);
+
+            graphics.setFont(new Font("Calibri", Font.PLAIN, 50));
             graphics.setColor(Color.BLACK);
-//            graphics.fillRect(100, 100, 100, 100);
-            graphics.drawString("Zombie Hit # = " + this.zombieHit, 20, 20);
+            graphics.drawString("$ " + this.money, 20, 920);
+            graphics.setColor(Color.red);
+            graphics.drawString("Ammo: " + this.bullets, 200, 920);
+            graphics.setColor(Color.BLUE);
+            graphics.drawString("Wave " + this.waveNumber, 500, 920);
+            graphics.setColor(Color.GRAY);
+            graphics.setFont(new Font("Calibri", Font.PLAIN, 25));
+            graphics.drawString("W = UP, S = DOWN, A = LEFT, D = RIGHT", 700, 900);
+            graphics.drawString("AIM WITH YOUR MOUSE AND SHOOT WITH YOUR SPACE BAR", 1200, 900);
+            graphics.drawString("SHOOTING ZOMBIES GETS YOU MONEY", 700, 940);
+            graphics.drawString("PRESS 1 TO BUY AMMO - 20 BULLETS FOR $ 15", 1200, 940);
+            graphics.setColor(Color.red);
+            graphics.drawString("HOW LONG WILL YOU LAST?", 1030, 970);
 
             if (shootLine != null) {
                 graphics.setColor(Color.red);
@@ -449,24 +459,24 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 
         } else if (getGameState() == GameState.STARTING) {
 
-        } else if (getGameState() == GameState.STORE_MENU) {
-            graphics.setColor(new Color(0, 0, 0, 150));
-            graphics.fillRect(50, 50, 750, 450);
-            graphics.setColor(Color.WHITE);
-            graphics.fillRect(100, 100, 650, 350);
-
+        } //        else if (getGameState() == GameState.STORE_MENU) {
+        //            graphics.setColor(new Color(0, 0, 0, 150));
+        //            graphics.fillRect(50, 50, 750, 450);
+        //            graphics.setColor(Color.WHITE);
+        //            graphics.fillRect(100, 100, 650, 350);
+        //
+        //            graphics.setColor(Color.red);
+        //            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
+        //            graphics.drawString("Store", 390, 90);
+        //        } 
+        else if (gameState == GameState.DEAD) {
             graphics.setColor(Color.red);
-            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
-            graphics.drawString("Store", 390, 90);
-        } else if (gameState == GameState.DEAD) {
-            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 80));
-            graphics.fillRect(0, 0, 1000, 800);
-            graphics.setColor(Color.white);
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 300));
+            graphics.drawString("GAME OVER", 180, 500);
 
-            graphics.drawString("GAME OVER", 240, 300);
-            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 30));
-
-            graphics.drawString("Score:" + this.zombieHit, 250, 380);
+            graphics.setFont(new Font("CALIBRI", Font.PLAIN, 50));
+            graphics.setColor(Color.green);
+            graphics.drawString("Wave " + this.waveNumber, 850, 600);
 
         }
 
@@ -562,8 +572,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
 //<editor-fold defaultstate="collapsed" desc="ObstacleEventHandlerIntf Methods">
     @Override
     public boolean obstacleEvent(Obstacle obstacle) {
-//        System.out.println("Obstacle = " + obstacle.getType().toString());
-            AudioPlayer.play("/resources/barriersound.wav");
+//        AudioPlayer.play("/resources/barrier_hit.wav");
         return false;
     }
 //</editor-fold>
@@ -581,8 +590,8 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     public void setCurrentMap(Map currentMap) {
         this.currentMap = currentMap;
 //        this.setSize(200, 800);
-        System.out.println("Change Map");
-        
+//        System.out.println("Change Map");
+
     }
 
 }

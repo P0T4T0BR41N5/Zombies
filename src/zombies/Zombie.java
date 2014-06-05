@@ -25,7 +25,7 @@ public class Zombie extends Actor {
         if ((alive) && (Math.random() > 0.995)) {
             grunt();
         }
-        
+
         if (validateMove()) {
             super.move();
         } else {
@@ -165,8 +165,6 @@ public class Zombie extends Actor {
 
         if (number < 0.1) {
             AudioPlayer.play("/resources/zombie_growl_1.wav");
-        } else if (number < 0.2) {
-            AudioPlayer.play("/resources/zombie_growl_2.wav");
         } else if (number < 0.3) {
             AudioPlayer.play("/resources/zombie_growl_3.wav");
         } else if (number < 0.4) {

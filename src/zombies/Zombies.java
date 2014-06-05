@@ -24,7 +24,7 @@ public class Zombies {
 
     private static void start() {
 //        ApplicationStarter.run("Zombie Game", new GameEnvironment());
-        ApplicationStarter.run(new String[0], "Zombie Game", new Dimension(59 * 32, 32 * 32), new GameEnvironment());
+        ApplicationStarter.run(new String[0], "ZombieS", new Dimension(59 * 32, 32 * 32), new GameEnvironment());
     }
     
 }
