@@ -126,7 +126,7 @@ public class Zombie extends Actor {
             //maybe change image to dead guy on 
             grunt();
             this.stop();
-            this.setPosition(-100, -100);
+            this.setPosition(-100000, -100000);
         }
         this.alive = alive;
     }

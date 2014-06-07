@@ -53,7 +53,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
     private MapVisualizerDefault mapVisualizer;
 
     private GameState gameState;
-    private int money = 0;
+    private int money = 15;
     private int zombieCount = 1;
     private int waveNumber = 1;
 
@@ -292,7 +292,7 @@ class GameEnvironment extends Environment implements MouseMotionListener,
                 for (Zombie zombie : this.zombies) {
                     if (this.hero.intersects(zombie)) {
                         if ((Math.random() > .9) && (zombie.isAlive())) {
-                            hero.addToHealth(-7);
+                            hero.addToHealth(-5);
                         }
                     }
                 }
@@ -341,6 +341,13 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             } else if (e.getKeyCode() == KeyEvent.VK_2) {
 
                 setGameState(GameState.RUNNING_TO_PAUSED);
+
+            } else if (e.getKeyCode() == KeyEvent.VK_3) {
+
+                if ((this.money >= 100) && (this.hero.getHealth() < 100)) {
+                 this.money -= 100;
+                 this.hero.setHealth(100);
+                }
 
             } 
 //            else if (e.getKeyCode() == KeyEvent.VK_E) {
@@ -450,9 +457,9 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             graphics.drawString("W = UP, S = DOWN, A = LEFT, D = RIGHT", 700, 900);
             graphics.drawString("AIM WITH YOUR MOUSE AND SHOOT WITH YOUR SPACE BAR", 1200, 900);
             graphics.drawString("SHOOTING ZOMBIES GETS YOU MONEY", 700, 940);
-            graphics.drawString("PRESS 1 TO BUY AMMO - 20 BULLETS FOR $ 15", 1200, 940);
+            graphics.drawString("HOW LONG WILL YOU LAST?", 1200, 940);
             graphics.setColor(Color.red);
-            graphics.drawString("HOW LONG WILL YOU LAST?", 1030, 970);
+            graphics.drawString("PRESS 1 TO BUY AMMO (20 BULLETS FOR 15$)            PRESS 2 TO PAUSE              PRESS 3 TO RECAHRGE HEALTH ($100 FOR MAX HEALTH)", 400, 970);
 
             if (shootLine != null) {
                 graphics.setColor(Color.red);
@@ -469,6 +476,8 @@ class GameEnvironment extends Environment implements MouseMotionListener,
             graphics.setFont(new Font("CALIBRI", Font.PLAIN, 50));
             graphics.setColor(Color.green);
             graphics.drawString("Wave " + this.waveNumber, 850, 600);
+            
+            
 
         }
 
